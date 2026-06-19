@@ -57,8 +57,8 @@ export default function DashboardPage() {
         <TopNav userName="Chidi Nwachukwu" userRole="Certified Contractor" />
 
         {/* Dashboard Area */}
-        <main className="flex-grow p-6 sm:p-8">
-          <Breadcrumb />
+        <main className="flex-grow"> 
+          <div className="p-6 sm:p-8">
           
           {/* Header text */}
           <div className="mb-8">
@@ -195,6 +195,7 @@ export default function DashboardPage() {
 
           </div>
 
+          </div>
         </main>
       </div>
     </div>

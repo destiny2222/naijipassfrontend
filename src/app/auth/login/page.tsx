@@ -2,15 +2,30 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { LoginPayload, loginUser } from "@/src/services/auth/login";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in with:", { email, password });
+    const data: LoginPayload = {
+      email,
+      password,
+    };
+    try {
+      const response = await loginUser(data);
+      toast.success(response.message); 
+      localStorage.setItem("email", email);
+      router.push("/auth/verifyotp");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "An unexpected error occurred during login.");
+    }
   };
 
   return (

@@ -106,8 +106,9 @@ export default function ProjectsPage() {
     <div className="flex min-h-screen flex-col bg-zinc-50/50">
       <Navbar />
 
-      <main className="flex-grow mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="flex-grow">
         <Breadcrumb />
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         
         {/* Header Block */}
         <div className="mb-10">
@@ -326,6 +327,7 @@ export default function ProjectsPage() {
 
         </div>
 
+        </div>
       </main>
 
       <Footer />

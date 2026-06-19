@@ -61,58 +61,10 @@ export default function VisualizationPage() {
 
       <main className="flex-grow">
         
-        {/* Kano State Profile Hero Banner */}
-        <div className="relative bg-[#101D2D] py-16 text-white overflow-hidden">
-          {/* Decorative gradients */}
-          <div className="absolute top-0 right-0 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-[#FF6B2B]/20 to-transparent blur-[60px] opacity-40 pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 h-[250px] w-[250px] rounded-full bg-gradient-to-tr from-sky-500/10 to-transparent blur-[50px] opacity-30 pointer-events-none" />
-          
-          <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-              
-              {/* Profile Details */}
-              <div className="max-w-2xl">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-[#FF6B2B] uppercase tracking-wider mb-4 border border-white/5 backdrop-blur-md">
-                  ★ State Hub Profile
-                </span>
-                <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-                  Kano State
-                </h1>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-                  The center of commerce and industry in northern Nigeria. Access regulatory documents, 
-                  monitor critical state utilities, and connect with key government ministries instantly.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-4">
-                  <button className="rounded-xl bg-[#FF6B2B] px-5 py-3 text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/10 hover:bg-[#E55F23] transition-colors">
-                    Access Library
-                  </button>
-                  <button className="rounded-xl border border-white/20 px-5 py-3 text-xs font-bold text-white hover:bg-white/5 transition-colors">
-                    View Directory
-                  </button>
-                </div>
-              </div>
-
-              {/* State Crest Emblem Widget */}
-              <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-full bg-white/5 p-2 shadow-inner border border-white/10 backdrop-blur-md self-center md:h-40 md:w-40">
-                {/* Outer Shield representation */}
-                <svg className="h-24 w-24 text-[#FF6B2B] md:h-28 md:w-28" viewBox="0 0 100 100" fill="currentColor">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" />
-                  <path d="M 50 15 L 62 40 L 87 40 L 67 56 L 75 80 L 50 65 L 25 80 L 33 56 L 13 40 L 38 40 Z" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="50" cy="50" r="12" fill="#101D2D" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M 32 30 A 22 22 0 0 1 68 30" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M 32 70 A 22 22 0 0 0 68 70" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="50" cy="50" r="4" fill="#FF6B2B" />
-                </svg>
-              </div>
-
-            </div>
-          </div>
-        </div>
+        <Breadcrumb />
 
         {/* Content Section Columns */}
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <Breadcrumb />
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             
             {/* Left Column: Regulatory Library */}

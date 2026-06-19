@@ -1,45 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { registerUser, RegisterPayload } from "@/src/services/auth/register";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [stateOfOperation, setStateOfOperation] = useState("");
   const [password, setPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const states = [
-    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
-    "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo",
-    "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
-    "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers",
-    "Sokoto", "Taraba", "Yobe", "Zamfara", "Abuja (FCT)"
-  ];
+  const [formData, setFormData] = useState({
+    name,
+    email,
+    phone,
+    password,
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registering with:", { name, email, phone, stateOfOperation, password, agreeTerms });
+    setLoading(true);
+
+    if (!agreeTerms) {
+      toast.error("Please agree to the terms and conditions");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await registerUser(formData);
+      toast.success(response.message);
+      localStorage.setItem("email", formData.email);
+      // set timeout
+      setTimeout(() => {
+        router.push("/auth/verifyotp");
+      }, 2000);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "An unexpected error occurred during signup.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-white">
-
-      {/* Top Left Navigation Back Home (Mobile & Desktop) */}
-      <div className="absolute top-6 left-6 z-50">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-[#101D2D] transition-colors bg-white/80 backdrop-blur-sm py-1.5 px-3 rounded-lg border border-zinc-150 shadow-sm"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Home
-        </Link>
-      </div>
 
       {/* Left Column: Register Form */}
       <div className="flex w-full flex-col justify-center px-6 py-20 lg:w-[50%] xl:w-[55%] sm:px-12 lg:px-16 xl:px-24">
@@ -64,7 +74,7 @@ export default function SignupPage() {
             Create your account
           </h1>
           <p className="mt-3 text-sm text-zinc-500">
-            Join the premier governance and bidding portal. Customize alerts based on your primary state of operation.
+            Join the premier governance and bidding portal.
           </p>
 
           {/* Form */}
@@ -78,24 +88,24 @@ export default function SignupPage() {
                 id="fullName"
                 type="text"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. Chukwudi Okafor"
                 className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-3 px-4 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60"
               />
             </div>
 
-            {/* Business Email */}
+            {/* Email Address */}
             <div className="space-y-1.5">
-              <label htmlFor="businessEmail" className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">
-                Business Email
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">
+                Email Address
               </label>
               <input
-                id="businessEmail"
+                id="email"
                 type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="you@company.com"
                 className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-3 px-4 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60"
               />
@@ -110,31 +120,14 @@ export default function SignupPage() {
                 id="phoneNumber"
                 type="tel"
                 required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+234 800 000 0000"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+234 800 000  0000"
                 className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-3 px-4 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60"
               />
             </div>
 
-            {/* Primary State of Operation */}
-            <div className="space-y-1.5">
-              <label htmlFor="stateOfOperation" className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">
-                Primary State of Operation
-              </label>
-              <select
-                id="stateOfOperation"
-                required
-                value={stateOfOperation}
-                onChange={(e) => setStateOfOperation(e.target.value)}
-                className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-3 px-4 text-sm text-zinc-800 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60 cursor-pointer"
-              >
-                <option value="" disabled>Select your primary state...</option>
-                {states.map((st) => (
-                  <option key={st} value={st}>{st}</option>
-                ))}
-              </select>
-            </div>
+
 
             {/* Password */}
             <div className="space-y-1.5">
@@ -146,8 +139,8 @@ export default function SignupPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
                   className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-3 pl-4 pr-12 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60"
                 />
@@ -200,9 +193,20 @@ export default function SignupPage() {
             {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               className="flex w-full h-12 items-center justify-center rounded-xl bg-[#FF6B2B] text-sm font-semibold text-white shadow-lg shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] hover:shadow-[#E55F23]/25 focus:outline-none hover:-translate-y-0.5 active:translate-y-0"
             >
-              Create Account
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </button>
           </form>
 

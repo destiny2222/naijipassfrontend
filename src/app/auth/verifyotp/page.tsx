@@ -33,10 +33,16 @@ export default function VerifyOtpPage() {
         try {
             const response = await verifyOtp(data);
             toast.success(response.message || "OTP Verified Successfully!");
-            // Store token here after OTP verification
-            if (response.token) {
-                localStorage.setItem("token", response.token);
+            const token = response?.token || response?.data?.token;
+            const user = response?.user || response?.data?.user;
+
+            if (token) {
+                localStorage.setItem("token", token);
             }
+            if (user) {
+                localStorage.setItem("user", JSON.stringify(user));
+            }
+            
             setTimeout(() => {
                 router.push("/dashboard");
             }, 2000);

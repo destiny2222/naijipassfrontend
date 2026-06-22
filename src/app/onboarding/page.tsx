@@ -12,7 +12,24 @@ import {
   addKycRepresentatives,
   KycRepresentative,
   uploadDocument,
+  getMyKycStatus,
 } from "@/src/services/kyc/kyc";
+
+// UI Helpers
+const Input = ({ label, type = "text", value, onChange, placeholder, required = true }: any) => (
+  <div className="space-y-2">
+    <label className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">{label}</label>
+    <input type={type} required={required} value={value} onChange={onChange} placeholder={placeholder} className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60" />
+  </div>
+);
+
+const FileInput = ({ label, onChange, required = true }: any) => (
+  <div className="space-y-2">
+    <label className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">{label}</label>
+    <input type="file" required={required} onChange={onChange} className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 p-2.5 text-sm text-zinc-800 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60 file:mr-4 file:rounded-md file:border-0 file:bg-[#101D2D] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-opacity-90" />
+  </div>
+);
+
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -75,9 +92,54 @@ export default function OnboardingPage() {
     };
     fetchCategories();
     
-    // Auto-fill email if stored locally
-    const storedEmail = localStorage.getItem("email");
-    if (storedEmail) setEmail(storedEmail);
+    const fetchExistingKyc = async () => {
+      try {
+        const res = await getMyKycStatus();
+        const kyc = res?.data || res;
+        
+        if (kyc && Object.keys(kyc).length > 0 && kyc.id) {
+          if (kyc.type) setType(kyc.type);
+          if (kyc.email) setEmail(kyc.email);
+          if (kyc.phoneNumber) setPhoneNumber(kyc.phoneNumber);
+          if (kyc.idType) setIdType(kyc.idType);
+          if (kyc.idNumber) setIdNumber(kyc.idNumber);
+          
+          if (kyc.firstName) setFirstName(kyc.firstName);
+          if (kyc.lastName) setLastName(kyc.lastName);
+          if (kyc.dateOfBirth) setDateOfBirth(kyc.dateOfBirth.split('T')[0]);
+          if (kyc.nationality) setNationality(kyc.nationality);
+          if (kyc.residentialAddress) setResidentialAddress(kyc.residentialAddress);
+          if (kyc.mailingAddress) setMailingAddress(kyc.mailingAddress);
+          
+          if (kyc.businessName) setBusinessName(kyc.businessName);
+          if (kyc.businessType) setBusinessType(kyc.businessType);
+          if (kyc.registrationNumber) setRegistrationNumber(kyc.registrationNumber);
+          if (kyc.taxIdentificationNumber) setTaxIdentificationNumber(kyc.taxIdentificationNumber);
+          
+          if (kyc.industryCategoryId) {
+            setIndustryCategoryId(kyc.industryCategoryId);
+          } else if (kyc.otherIndustryCategory) {
+            setIndustryCategoryId("other");
+            setOtherIndustryCategory(kyc.otherIndustryCategory);
+          }
+          
+          if (kyc.industry) setIndustry(kyc.industry);
+          if (kyc.registeredAddress) setRegisteredAddress(kyc.registeredAddress);
+          if (kyc.businessAddress) setBusinessAddress(kyc.businessAddress);
+          if (kyc.contactPersonName) setContactPersonName(kyc.contactPersonName);
+          if (kyc.contactPersonEmail) setContactPersonEmail(kyc.contactPersonEmail);
+          
+          if (kyc.id) setKycId(kyc.id);
+        } else {
+          const storedEmail = localStorage.getItem("email");
+          if (storedEmail) setEmail(storedEmail);
+        }
+      } catch (error) {
+        const storedEmail = localStorage.getItem("email");
+        if (storedEmail) setEmail(storedEmail);
+      }
+    };
+    fetchExistingKyc();
   }, []);
 
   // Handle Type Change - Reset Substep
@@ -177,7 +239,9 @@ export default function OnboardingPage() {
         setStep(2);
       } else {
         // Refresh session or redirect
-        window.location.href = "/dashboard";
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to submit KYC details.");
@@ -205,7 +269,10 @@ export default function OnboardingPage() {
       });
 
       toast.success("Representatives added successfully!");
-      window.location.href = "/dashboard";
+      setTimeout(() => {
+        // router.refresh();
+        router.replace("/dashboard");
+      }, 2000);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to add representatives.");
     } finally {
@@ -227,20 +294,7 @@ export default function OnboardingPage() {
     setRepresentatives(newReps);
   };
 
-  // UI Helpers
-  const Input = ({ label, type = "text", value, onChange, placeholder, required = true }: any) => (
-    <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">{label}</label>
-      <input type={type} required={required} value={value} onChange={onChange} placeholder={placeholder} className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60" />
-    </div>
-  );
-
-  const FileInput = ({ label, onChange, required = true }: any) => (
-    <div className="space-y-2">
-      <label className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">{label}</label>
-      <input type="file" required={required} onChange={onChange} className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 p-2.5 text-sm text-zinc-800 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60 file:mr-4 file:rounded-md file:border-0 file:bg-[#101D2D] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-opacity-90" />
-    </div>
-  );
+  // handle input changes
 
   return (
     <ProtectedRoute>

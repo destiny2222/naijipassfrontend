@@ -26,7 +26,19 @@ export interface UserProfile {
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser && savedUser !== 'undefined') {
+        try {
+          return JSON.parse(savedUser);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -34,12 +46,20 @@ export const useAuth = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/profile/me');
+      const response = await api.get('/profile/me');
       
-      setUser(response.data.user);
+      const userData = response.data?.user || response.data;
+      // console.log('user data', userData);
+      if (userData && userData.id) {
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
       setError(null);
     } catch (err: any) {
-      setUser(null);
+      if (err.response?.status === 401) {
+        setUser(null);
+        localStorage.removeItem('token');
+      }
       setError(err.response?.data?.message || 'Failed to fetch profile');
     } finally {
       setLoading(false);

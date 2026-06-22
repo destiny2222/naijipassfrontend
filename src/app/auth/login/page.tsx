@@ -22,6 +22,8 @@ export default function LoginPage() {
       const response = await loginUser(data);
       toast.success(response.message); 
       localStorage.setItem("email", email);
+      // localStorage.setItem("token", response?.token);
+      // localStorage.setItem("user", JSON.stringify(response.user));
       router.push("/auth/verifyotp");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "An unexpected error occurred during login.");

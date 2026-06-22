@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/src/components/sidebar/page";
 import TopNav from "@/src/components/tobnav/page";
-import Breadcrumb from "@/src/components/Breadcrumb";
+// import Breadcrumb from "@/src/components/Breadcrumb";
+import { useAuth } from "@/src/hooks/useAuth";
+import { getMyKycStatus } from "@/src/services/kyc/kyc";
+
 
 interface Activity {
   id: string;
@@ -13,30 +16,46 @@ interface Activity {
   status: "Awarded" | "Under Review" | "Draft" | "Action Required";
 }
 
+import { getBids } from "@/src/services/bids/bids";
+
 export default function DashboardPage() {
-  const [activities, setActivities] = useState<Activity[]>([
-    {
-      id: "1",
-      ref: "REF-EDO-PPP-2024-001",
-      project: "Rehabilitation of Benin-Sapele Road Network",
-      date: "Submitted 2 days ago",
-      status: "Under Review",
-    },
-    {
-      id: "2",
-      ref: "EDO-EDU-2024-012",
-      project: "Supply of IT Equipment for Smart Schools",
-      date: "Awarded 1 week ago",
-      status: "Awarded",
-    },
-    {
-      id: "3",
-      ref: "EDO-ENV-2024-009",
-      project: "Clean Water Plant Expansion Project",
-      date: "Last edited yesterday",
-      status: "Draft",
-    },
-  ]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const { user, loading, hasSubmittedKyc } = useAuth();
+  const [fetchingBids, setFetchingBids] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      getMyKycStatus();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchBids = async () => {
+      setFetchingBids(true);
+      try {
+        const response = await getBids({ status: "active" });
+        if (response.success && response.data) {
+          const fetchedActivities: Activity[] = response.data.map(bid => {
+            const isPastDeadline = new Date(bid.deadline) < new Date();
+            return {
+              id: bid.id,
+              ref: bid.bidNumber,
+              project: bid.title,
+              date: `Deadline: ${new Date(bid.deadline).toLocaleDateString()}`,
+              status: isPastDeadline ? "Awarded" : "Under Review",
+            };
+          });
+          setActivities(fetchedActivities);
+        }
+      } catch (error) {
+        console.error("Failed to fetch bids", error);
+      } finally {
+        setFetchingBids(false);
+      }
+    };
+
+    fetchBids();
+  }, []);
 
   const metrics = [
     { label: "Active Contracts", value: "14", change: "+2 this month", accent: "border-l-4 border-l-[#FF6B2B]" },
@@ -69,6 +88,47 @@ export default function DashboardPage() {
               Review operational analytics, active contract metrics, and analyze your pending bids.
             </p>
           </div>
+
+          {/* KYC Status Alert */}
+          {user?.kyc && user.kyc.status !== 'approved' && (
+            <div className={`mb-8 rounded-2xl border p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+              user.kyc.status === 'rejected' ? 'border-red-100 bg-red-50/50' : 'border-amber-100 bg-amber-50/50'
+            }`}>
+              <div className="flex items-center gap-4">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                  user.kyc.status === 'rejected' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                }`}>
+                  {user.kyc.status === 'rejected' ? (
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  )}
+                </div>
+                <div>
+                  <h4 className={`text-sm font-bold uppercase tracking-wider ${
+                    user.kyc.status === 'rejected' ? 'text-red-900' : 'text-amber-900'
+                  }`}>
+                    KYC Status: {user.kyc.status}
+                  </h4>
+                  <p className={`text-xs mt-1 font-medium ${
+                    user.kyc.status === 'rejected' ? 'text-red-800' : 'text-amber-800'
+                  }`}>
+                    {user.kyc.status === 'rejected' 
+                      ? 'Your KYC application was rejected. Please review and resubmit your details.' 
+                      : 'Your KYC details have been submitted and are currently being verified by our compliance team. Some features may be restricted until approved.'}
+                  </p>
+                </div>
+              </div>
+              {user.kyc.status === 'rejected' && (
+                <button 
+                  onClick={() => window.location.href = '/onboarding'}
+                  className="shrink-0 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-red-700 transition-colors"
+                >
+                  Resubmit KYC
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -105,7 +165,11 @@ export default function DashboardPage() {
 
               {/* Timeline list */}
               <div className="space-y-6">
-                {activities.map((act) => (
+                {fetchingBids ? (
+                  <div className="text-center py-4 text-xs font-medium text-zinc-400">Loading tenders...</div>
+                ) : activities.length === 0 ? (
+                  <div className="text-center py-4 text-xs font-medium text-zinc-400">No active tenders found.</div>
+                ) : activities.map((act) => (
                   <div key={act.id} className="flex gap-4 items-start relative group">
                     <div className="flex flex-col items-center">
                       <span className={`h-4 w-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center shrink-0 ${

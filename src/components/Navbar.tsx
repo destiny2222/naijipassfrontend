@@ -80,13 +80,13 @@ export default function Navbar() {
             {/* Desktop Login & Signup Buttons */}
             <div className="hidden md:flex items-center gap-4">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
               >
                 Log in
               </Link>
               <Link
-                href="/signup"
+                href="/auth/signup"
                 className="inline-flex h-10 items-center justify-center rounded-xl bg-[#FF6B2B] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23] transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
                 Sign up

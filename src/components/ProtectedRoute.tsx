@@ -12,7 +12,6 @@ export default function ProtectedRoute({
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading, hasSubmittedKyc } = useAuth();
-
   useEffect(() => {
     if (!loading) {
       if (!user) {

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/src/components/sidebar/page";
-import TopNav from "@/src/components/tobnav/page";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getMyKycStatus } from "@/src/services/kyc/kyc";
 import { updateProfileService, changePasswordService } from "@/src/services/profile/profile";
@@ -78,13 +76,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 text-[#101D2D]">
-      <Sidebar activeItem="My Profile" />
-
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-        <TopNav userName={user?.name || "User"} userRole={user?.role || "Member"} />
-
-        <main className="flex-grow p-6 sm:p-8">
+    <div className="p-4 sm:p-8 max-w-[1600px] mx-auto w-full">
           <Toaster position="top-right" />
           <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -371,8 +363,6 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-        </main>
-      </div>
     </div>
   );
 }

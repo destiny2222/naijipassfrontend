@@ -114,15 +114,6 @@ export default function Projects() {
           </div>
         </div>
 
-        {/* View Complete Portfolio Button */}
-        <div className="mt-16 text-center">
-          <a
-            href="#portfolio"
-            className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-[#101D2D] px-6 text-sm font-semibold text-[#101D2D] transition-all hover:bg-[#101D2D] hover:text-white focus:outline-none hover:-translate-y-0.5 active:translate-y-0"
-          >
-            View Complete Portfolio
-          </a>
-        </div>
       </div>
     </section>
   );

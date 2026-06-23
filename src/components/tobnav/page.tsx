@@ -56,7 +56,7 @@ export default function TopNav({
       </div>
 
       {/* Right side actions */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-6">
         {/* Notifications Button */}
         <div className="relative">
           <button
@@ -75,7 +75,7 @@ export default function TopNav({
 
           {/* Notifications Dropdown */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-3 w-80 origin-top-right rounded-2xl border border-zinc-100 bg-white p-4 shadow-xl shadow-zinc-150/40 ring-1 ring-black/5 focus:outline-none">
+            <div className="absolute right-[-60px] sm:right-0 mt-3 w-72 sm:w-80 origin-top-right rounded-2xl border border-zinc-100 bg-white p-4 shadow-xl shadow-zinc-150/40 ring-1 ring-black/5 focus:outline-none">
               <div className="flex items-center justify-between border-b border-zinc-100 pb-2 mb-2">
                 <span className="text-sm font-bold text-[#101D2D]">Alerts & Notices</span>
                 <button className="text-xs font-semibold text-[#FF6B2B] hover:text-[#E55F23]">Mark all read</button>
@@ -94,7 +94,7 @@ export default function TopNav({
         </div>
 
         {/* User Profile Info */}
-        <div className="flex items-center gap-3 border-l border-zinc-150 pl-6">
+        <div className="flex items-center gap-2 sm:gap-3 border-l border-zinc-150 pl-3 sm:pl-6">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-sm font-bold text-[#101D2D]">{userName}</span>
             <span className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">{userRole}</span>

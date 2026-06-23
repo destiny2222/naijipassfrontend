@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { registerUser, RegisterPayload } from "@/src/services/auth/register";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,13 @@ export default function SignupPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, authLoading, router]);
 
   const [formData, setFormData] = useState({
     name,
@@ -214,7 +222,7 @@ export default function SignupPage() {
           <div className="mt-8 text-center text-sm">
             <span className="text-zinc-500">Already have an account? </span>
             <Link
-              href="/login"
+              href="/auth/login"
               className="font-semibold text-[#FF6B2B] hover:text-[#E55F23] transition-colors"
             >
               Sign in to portal

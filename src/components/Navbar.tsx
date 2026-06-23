@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname() || "";
+  const { user, logout } = useAuth();
 
   const activeTab = pathname === "/projects" 
     ? "Project" 
@@ -25,6 +27,7 @@ export default function Navbar() {
   ];
 
   return (
+    <>
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-100 bg-white/90 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
@@ -79,18 +82,37 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {/* Desktop Login & Signup Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              <Link
-                href="/auth/login"
-                className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-[#FF6B2B] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23] transition-all hover:-translate-y-0.5 active:translate-y-0"
-              >
-                Sign up
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-zinc-100 px-5 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-200 transition-all active:translate-y-0"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[#FF6B2B] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23] transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -113,10 +135,19 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+    </nav>
+
+      {/* Mobile Menu Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-zinc-900/50 backdrop-blur-sm md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
       {/* Mobile Menu Side Drawer */}
       <div
-        className={`fixed inset-y-0 right-0 z-50 w-full max-w-sm border-l border-zinc-100 bg-white px-6 py-6 transition-transform duration-300 md:hidden shadow-2xl ${isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-y-0 right-0 z-[60] w-full max-w-sm border-l border-zinc-100 bg-white px-6 py-6 transition-transform duration-300 md:hidden shadow-2xl ${isOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
         <div className="flex items-center justify-between">
@@ -164,25 +195,48 @@ export default function Navbar() {
                 </a>
               ))}
             </div>
-            <div className="space-y-3 py-6">
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-semibold text-[#101D2D] hover:bg-zinc-50 transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center rounded-xl bg-[#FF6B2B] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23] transition-colors"
-              >
-                Sign up
-              </Link>
+            <div className="mt-6 flex flex-col gap-3 border-t border-zinc-100 pt-6">
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-[#101D2D] shadow-sm hover:bg-zinc-50"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }}
+                    className="flex w-full items-center justify-center rounded-xl bg-zinc-100 py-3 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-200"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setIsOpen(false)}
+                    className="flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-[#101D2D] shadow-sm hover:bg-zinc-50"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    onClick={() => setIsOpen(false)}
+                    className="flex w-full items-center justify-center rounded-xl bg-[#FF6B2B] py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23]"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </nav>
+    </>
   );
 }

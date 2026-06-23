@@ -110,3 +110,12 @@ export const getMyKycStatus = async () => {
     throw error;
   }
 };
+
+export const getVerifiedBusinessesDirectory = async () => {
+  try {
+    const response = await api.get("/kyc/directory");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -33,20 +33,20 @@ const FileInput = ({ label, onChange, required = true }: any) => (
 
 export default function OnboardingPage() {
   const router = useRouter();
-  
+
   // High-level steps: 1 = KYC Form, 2 = Representatives (Business Only)
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState < 1 | 2 > (1);
   const [subStep, setSubStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [kycId, setKycId] = useState<string | null>(null);
+  const [kycId, setKycId] = useState < string | null > (null);
 
   // -- Common Form States --
-  const [type, setType] = useState<"individual" | "business">("business");
+  const [type, setType] = useState < "individual" | "business" > ("business");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [idType, setIdType] = useState("");
   const [idNumber, setIdNumber] = useState("");
-  
+
   // -- Individual Specific Fields --
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -54,28 +54,28 @@ export default function OnboardingPage() {
   const [nationality, setNationality] = useState("");
   const [residentialAddress, setResidentialAddress] = useState("");
   const [mailingAddress, setMailingAddress] = useState("");
-  const [idDocument, setIdDocument] = useState<File | null>(null);
-  const [proofOfAddress, setProofOfAddress] = useState<File | null>(null);
+  const [idDocument, setIdDocument] = useState < File | null > (null);
+  const [proofOfAddress, setProofOfAddress] = useState < File | null > (null);
 
   // -- Business Specific Fields --
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [taxIdentificationNumber, setTaxIdentificationNumber] = useState("");
-  const [industryCategoryId, setIndustryCategoryId] = useState<number | "other">("");
+  const [industryCategoryId, setIndustryCategoryId] = useState < number | "other" | "" > ("");
   const [otherIndustryCategory, setOtherIndustryCategory] = useState("");
-  const [industry, setIndustry] = useState(""); 
+  const [industry, setIndustry] = useState("");
   const [registeredAddress, setRegisteredAddress] = useState("");
   const [businessAddress, setBusinessAddress] = useState("");
   const [contactPersonName, setContactPersonName] = useState("");
   const [contactPersonEmail, setContactPersonEmail] = useState("");
-  const [certificateOfIncorporation, setCertificateOfIncorporation] = useState<File | null>(null);
-  const [memorandumArticles, setMemorandumArticles] = useState<File | null>(null);
-  
-  const [categories, setCategories] = useState<KycCategory[]>([]);
+  const [certificateOfIncorporation, setCertificateOfIncorporation] = useState < File | null > (null);
+  const [memorandumArticles, setMemorandumArticles] = useState < File | null > (null);
+
+  const [categories, setCategories] = useState < KycCategory[] > ([]);
 
   // Representatives fields (Business Only)
-  const [representatives, setRepresentatives] = useState<KycRepresentative[]>([
+  const [representatives, setRepresentatives] = useState < KycRepresentative[] > ([
     { name: "", position: "" }
   ]);
 
@@ -91,44 +91,44 @@ export default function OnboardingPage() {
       }
     };
     fetchCategories();
-    
+
     const fetchExistingKyc = async () => {
       try {
         const res = await getMyKycStatus();
         const kyc = res?.data || res;
-        
+
         if (kyc && Object.keys(kyc).length > 0 && kyc.id) {
           if (kyc.type) setType(kyc.type);
           if (kyc.email) setEmail(kyc.email);
           if (kyc.phoneNumber) setPhoneNumber(kyc.phoneNumber);
           if (kyc.idType) setIdType(kyc.idType);
           if (kyc.idNumber) setIdNumber(kyc.idNumber);
-          
+
           if (kyc.firstName) setFirstName(kyc.firstName);
           if (kyc.lastName) setLastName(kyc.lastName);
           if (kyc.dateOfBirth) setDateOfBirth(kyc.dateOfBirth.split('T')[0]);
           if (kyc.nationality) setNationality(kyc.nationality);
           if (kyc.residentialAddress) setResidentialAddress(kyc.residentialAddress);
           if (kyc.mailingAddress) setMailingAddress(kyc.mailingAddress);
-          
+
           if (kyc.businessName) setBusinessName(kyc.businessName);
           if (kyc.businessType) setBusinessType(kyc.businessType);
           if (kyc.registrationNumber) setRegistrationNumber(kyc.registrationNumber);
           if (kyc.taxIdentificationNumber) setTaxIdentificationNumber(kyc.taxIdentificationNumber);
-          
+
           if (kyc.industryCategoryId) {
             setIndustryCategoryId(kyc.industryCategoryId);
           } else if (kyc.otherIndustryCategory) {
             setIndustryCategoryId("other");
             setOtherIndustryCategory(kyc.otherIndustryCategory);
           }
-          
+
           if (kyc.industry) setIndustry(kyc.industry);
           if (kyc.registeredAddress) setRegisteredAddress(kyc.registeredAddress);
           if (kyc.businessAddress) setBusinessAddress(kyc.businessAddress);
           if (kyc.contactPersonName) setContactPersonName(kyc.contactPersonName);
           if (kyc.contactPersonEmail) setContactPersonEmail(kyc.contactPersonEmail);
-          
+
           if (kyc.id) setKycId(kyc.id);
         } else {
           const storedEmail = localStorage.getItem("email");
@@ -153,7 +153,7 @@ export default function OnboardingPage() {
 
   const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Manage Wizard Progression
     if (type === "individual" && subStep < 3) return handleNextSubStep();
     if (type === "business" && subStep < 4) return handleNextSubStep();
@@ -231,10 +231,10 @@ export default function OnboardingPage() {
 
       const response = await submitKyc(payload);
       toast.success(response.message || "KYC details submitted successfully.");
-      
+
       if (type === "business") {
         if (response.kycId || response.data?.id) {
-           setKycId(response.kycId || response.data?.id);
+          setKycId(response.kycId || response.data?.id);
         }
         setStep(2);
       } else {
@@ -256,7 +256,7 @@ export default function OnboardingPage() {
 
     try {
       const validReps = representatives.filter(rep => rep.name.trim() !== "" && rep.position.trim() !== "");
-      
+
       if (validReps.length === 0) {
         toast.error("Please add at least one representative.");
         setIsLoading(false);
@@ -337,8 +337,8 @@ export default function OnboardingPage() {
                 {step === 1 ? "Complete Your KYC Profile" : "Add Business Representatives"}
               </h2>
               <p className="mt-2 text-sm md:text-base text-zinc-500">
-                {step === 1 
-                  ? "Follow the steps below to verify your identity and unlock full platform access." 
+                {step === 1
+                  ? "Follow the steps below to verify your identity and unlock full platform access."
                   : "List the executive members or directors associated with your business."}
               </p>
             </div>
@@ -355,7 +355,7 @@ export default function OnboardingPage() {
             {/* Step 1 Form (Multi-step) */}
             {step === 1 && (
               <form onSubmit={handleStep1Submit} className="mt-8 space-y-6">
-                
+
                 {/* --- SUBSTEP 1: Basic Information --- */}
                 {subStep === 1 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -391,7 +391,7 @@ export default function OnboardingPage() {
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <Input label="Email Address" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} placeholder="you@example.com" />
                       <Input label="Phone Number" type="tel" value={phoneNumber} onChange={(e: any) => setPhoneNumber(e.target.value)} placeholder="+234 800 000 0000" />
-                      
+
                       <div className="space-y-2">
                         <label className="block text-xs font-bold uppercase tracking-wider text-[#101D2D]">ID Type</label>
                         <select required value={idType} onChange={(e) => setIdType(e.target.value)} className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 text-sm text-zinc-800 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60">
@@ -491,7 +491,7 @@ export default function OnboardingPage() {
                       Back
                     </button>
                   )}
-                  
+
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -515,7 +515,7 @@ export default function OnboardingPage() {
             {/* Step 2 Form (Business Representatives) */}
             {step === 2 && (
               <form onSubmit={handleStep2Submit} className="mt-8 space-y-6">
-                
+
                 <div className="space-y-4">
                   {representatives.map((rep, idx) => (
                     <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start p-4 bg-zinc-50 rounded-xl border border-zinc-100">
@@ -527,7 +527,7 @@ export default function OnboardingPage() {
                         <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">Position / Title</label>
                         <input type="text" required value={rep.position} onChange={(e) => updateRepresentative(idx, "position", e.target.value)} placeholder="Director" className="block w-full rounded-lg border border-zinc-200 bg-white p-2.5 text-sm text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:ring-1 focus:ring-[#FF6B2B]/60" />
                       </div>
-                      
+
                       {representatives.length > 1 && (
                         <button type="button" onClick={() => removeRepresentativeRow(idx)} className="mt-6 sm:mt-7 p-2.5 text-zinc-400 hover:text-red-500 transition-colors">
                           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

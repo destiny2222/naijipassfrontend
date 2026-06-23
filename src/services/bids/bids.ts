@@ -8,10 +8,17 @@ export interface BidCategory {
 export interface Bid {
   id: string;
   title: string;
+  slug?: string;
   bidNumber: string;
   deadline: string;
   agency: string;
+  procuringEntity: string;
+  sector: string;
+  location: string;
+  description: string;
+  status: string;
   categoryId: number;
+  createdById?: string;
 }
 
 export interface CreateBidPayload {
@@ -19,6 +26,11 @@ export interface CreateBidPayload {
   bidNumber: string;
   deadline: string;
   agency: string;
+  procuringEntity: string;
+  sector: string;
+  location: string;
+  description: string;
+  status: string;
   categoryId: number;
 }
 
@@ -27,7 +39,12 @@ export interface UpdateBidPayload {
   bidNumber?: string;
   deadline?: string;
   agency?: string;
-  categoryId?: number;
+  procuringEntity?: string;
+  sector?: string;
+  location?: string;
+  description?: string;
+  status?: string;
+  categoryId?: number | null;
 }
 
 export const getBidCategories = async (): Promise<{ success: boolean; data: BidCategory[] }> => {
@@ -87,6 +104,45 @@ export const getBids = async (params?: { categoryId?: number; status?: string; s
 export const getBidDetails = async (id: string): Promise<{ success: boolean; data: Bid }> => {
   try {
     const response = await api.get(`/bids/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const applyToBid = async (id: string, data: { proposalText: string; proposedAmount: string }): Promise<any> => {
+  try {
+    const response = await api.post(`/bids/${id}/apply`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export interface BidReview {
+  id: string;
+  bidId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+export const getBidReviews = async (id: string): Promise<{ success: boolean; data: BidReview[] }> => {
+  try {
+    const response = await api.get(`/bids/${id}/reviews`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addBidReview = async (id: string, data: { rating: number; comment: string }): Promise<any> => {
+  try {
+    const response = await api.post(`/bids/${id}/reviews`, data);
     return response.data;
   } catch (error) {
     throw error;

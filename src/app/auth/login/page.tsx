@@ -5,12 +5,21 @@ import Link from "next/link";
 import { LoginPayload, loginUser } from "@/src/services/auth/login";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +204,7 @@ export default function LoginPage() {
           <div className="mt-8 text-center text-sm">
             <span className="text-zinc-500">Don&apos;t have an account? </span>
             <Link
-              href="/signup"
+              href="/auth/signup"
               className="font-semibold text-[#FF6B2B] hover:text-[#E55F23] transition-colors"
             >
               Request Access

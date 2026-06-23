@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/src/components/Navbar";
 import Footer from "@/src/components/Footer";
 import Breadcrumb from "@/src/components/Breadcrumb";
+import { getBids } from "@/src/services/bids/bids";
+import Link from "next/link";
 
 interface Tender {
   id: string;
+  slug?: string;
   ref: string;
   title: string;
   desc: string;
@@ -14,81 +17,63 @@ interface Tender {
   sector: string;
   location: string;
   deadline: string;
-  status: "Active" | "Pending" | "Closed";
-  type: "Government" | "Private";
+  status: string;
+  type: string;
   procuringEntity: string;
 }
 
 export default function ProjectsPage() {
   const [selectedSector, setSelectedSector] = useState("All");
   const [selectedSource, setSelectedSource] = useState("All");
+  const [selectedLocation, setSelectedLocation] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const tenders: Tender[] = [
-    {
-      id: "1",
-      ref: "REF-EDO-PPP-2024-001",
-      title: "Rehabilitation of Benin-Sapele Road Network",
-      desc: "Comprehensive rehabilitation and expansion of the major artery connecting Benin City to Sapele, including drainage systems and pedestrian walkways.",
-      budget: "₦850M - ₦1.2B",
-      sector: "Infrastructure",
-      location: "Ikpoba-Okha",
-      deadline: "Oct 15, 2024",
-      status: "Active",
-      type: "Government",
-      procuringEntity: "Ministry of Works",
-    },
-    {
-      id: "2",
-      ref: "EDO-EDU-2024-012",
-      title: "Supply of IT Equipment for Smart Schools",
-      desc: "Procurement and installation of desktop computers, interactive whiteboards, and networking infrastructure for 20 newly commissioned smart schools across the state.",
-      budget: "₦120M - ₦150M",
-      sector: "Education & Tech",
-      location: "Statewide (Multiple)",
-      deadline: "Oct 28, 2024",
-      status: "Active",
-      type: "Private",
-      procuringEntity: "MTN Nigeria",
-    },
-    {
-      id: "3",
-      ref: "REF-EDO-PPP-2024-003",
-      title: "Construction of Edo State Smart Secretariat Phase II",
-      desc: "Implementation of green building features, smart HVAC installation, and solar power integration for the public services administrative offices.",
-      budget: "₦1.8B - ₦2.5B",
-      sector: "Infrastructure",
-      location: "Benin City",
-      deadline: "Nov 15, 2024",
-      status: "Active",
-      type: "Government",
-      procuringEntity: "Ministry of Housing",
-    },
-    {
-      id: "4",
-      ref: "EDO-ENV-2024-009",
-      title: "Clean Water Plant Expansion Project",
-      desc: "Extension of pipelines, installation of high-capacity treatment pumps, and digital telemetry monitoring systems for regional water safety.",
-      budget: "₦800M - ₦1.1B",
-      sector: "Water & Sanitation",
-      location: "Esan West",
-      deadline: "Dec 05, 2024",
-      status: "Active",
-      type: "Government",
-      procuringEntity: "State Water Board",
-    },
-  ];
+  const [tenders, setTenders] = useState<Tender[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTenders = async () => {
+      try {
+        const response = await getBids({});
+        if (response.success && response.data) {
+          const formattedBids = response.data.map((bid: any) => ({
+            id: bid.id,
+            slug: bid.slug,
+            ref: bid.bidNumber || "N/A",
+            title: bid.title,
+            desc: bid.description,
+            budget: "Not Specified",
+            sector: bid.category?.name || "General",
+            location: bid.location || "Statewide",
+            deadline: new Date(bid.deadline).toLocaleDateString(),
+            status: bid.status || "Active",
+            type: "Government",
+            procuringEntity: bid.agency || "State Government",
+          }));
+          setTenders(formattedBids);
+        }
+      } catch (error) {
+        console.error("Failed to fetch bids", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTenders();
+  }, []);
+
+  const uniqueLocations = Array.from(new Set(tenders.map(t => t.location))).filter(Boolean).sort();
 
   const filteredTenders = tenders.filter((t) => {
     const matchesSector = selectedSector === "All" || t.sector === selectedSector;
     const matchesSource = selectedSource === "All" || t.type === selectedSource;
+    const matchesLocation = selectedLocation === "All" || t.location === selectedLocation;
     const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           t.ref.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           t.procuringEntity.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSector && matchesSource && matchesSearch;
+    return matchesSector && matchesSource && matchesLocation && matchesSearch;
   });
 
   const handleStartCompliance = () => {
@@ -142,6 +127,18 @@ export default function ProjectsPage() {
               <option value="Water & Sanitation">Water & Sanitation</option>
             </select>
 
+            {/* Location dropdown */}
+            <select
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+              className="rounded-xl border border-zinc-200 bg-zinc-50/50 py-2 px-3.5 text-xs font-bold text-zinc-700 outline-none focus:border-[#FF6B2B]/60 focus:bg-white"
+            >
+              <option value="All">All Locations</option>
+              {uniqueLocations.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
+
             {/* Bid Source dropdown */}
             <select
               value={selectedSource}
@@ -176,7 +173,11 @@ export default function ProjectsPage() {
           
           {/* Left 2 Cols: Tender List */}
           <div className="lg:col-span-2 space-y-6">
-            {filteredTenders.length > 0 ? (
+            {loading ? (
+              <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center">
+                <p className="text-sm text-zinc-500">Loading open tenders...</p>
+              </div>
+            ) : filteredTenders.length > 0 ? (
               filteredTenders.map((tender) => (
                 <div 
                   key={tender.id}
@@ -230,9 +231,9 @@ export default function ProjectsPage() {
                   </div>
 
                   <div className="mt-6 flex items-center justify-end">
-                    <button className="rounded-xl bg-[#FF6B2B] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] hover:shadow-[#E55F23]/25 active:translate-y-0">
+                    <Link href={`/projects/${tender.slug || tender.id}`} className="rounded-xl bg-[#FF6B2B] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] hover:shadow-[#E55F23]/25 active:translate-y-0">
                       View Details
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))
@@ -284,44 +285,39 @@ export default function ProjectsPage() {
                 </button>
               </div>
             </div>
+ 
 
-            {/* Maps / locations Widget */}
-            <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-[#101D2D]">Project Locations</h3>
-              <div className="my-4 flex items-center justify-center rounded-xl bg-zinc-50 py-6 border border-zinc-100">
-                {/* SVG Nigeria Map representation */}
-                <svg className="h-36 w-auto text-zinc-300" viewBox="0 0 200 150" fill="currentColor">
-                  <path 
-                    d="M 20 60 C 25 30, 75 10, 110 10 C 130 10, 150 15, 175 30 C 185 40, 180 70, 185 85 C 190 95, 160 140, 130 140 C 95 140, 80 135, 60 130 C 40 125, 25 110, 20 95 C 15 85, 15 70, 20 60 Z" 
-                    fill="#F4F4F5" 
-                    stroke="#E4E4E7" 
-                    strokeWidth="1.5"
-                  />
-                  <circle cx="65" cy="115" r="4.5" fill="#FF6B2B" className="animate-ping" />
-                  <circle cx="65" cy="115" r="3" fill="#FF6B2B" />
-                  <circle cx="85" cy="110" r="3.5" fill="#FF6B2B" />
-                  <circle cx="105" cy="95" r="3" fill="#101D2D" />
-                  <circle cx="140" cy="55" r="3.5" fill="#101D2D" />
-                  <circle cx="115" cy="45" r="3" fill="#101D2D" />
-                </svg>
+            {/* Premium Quick Stats Widget */}
+            {/* <div className="grid grid-cols-2 gap-4">
+              <div className="group relative overflow-hidden rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:border-zinc-200">
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="relative">
+                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 transition-colors group-hover:bg-[#101D2D] group-hover:text-white">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <span className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total Value</span>
+                  <span className="mt-1 block text-xl font-black text-[#101D2D]">₦--</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-zinc-500">Showing 12 active zones</span>
-                <a href="#map" className="font-bold text-[#FF6B2B] hover:text-[#E55F23] transition-colors">View Full Map</a>
+              
+              <div className="group relative overflow-hidden rounded-2xl bg-[#101D2D] p-5 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl">
+                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-[#FF6B2B]/40 to-transparent blur-xl transition-all group-hover:scale-110" />
+                <div className="relative">
+                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-[#FF6B2B] shadow-inner backdrop-blur-md">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <span className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Open Tenders</span>
+                  <span className="mt-1 flex items-baseline gap-1 text-xl font-black text-white">
+                    {tenders.length}
+                    <span className="text-xs font-semibold text-[#FF6B2B]">Active</span>
+                  </span>
+                </div>
               </div>
-            </div>
-
-            {/* Quick Stats Widget */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm text-center">
-                <span className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Total Value</span>
-                <span className="mt-1 block text-lg font-black text-[#101D2D]">₦4.2B</span>
-              </div>
-              <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm text-center">
-                <span className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Open Tenders</span>
-                <span className="mt-1 block text-lg font-black text-[#FF6B2B]">42</span>
-              </div>
-            </div>
+            </div> */}
 
           </div>
 

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/src/components/sidebar/page";
-import TopNav from "@/src/components/tobnav/page";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getBids, Bid, getBidCategories, BidCategory, createBid, updateBid } from "@/src/services/bids/bids";
 import { toast } from "react-hot-toast";
@@ -35,7 +33,8 @@ export default function MyBidsPage() {
     try {
       const response = await getBids(); // Fetch all bids
       if (response.success && response.data) {
-        const userBids = user ? response.data.filter((b: any) => b.createdById === user.id) : [];
+        const userBids = user ? response.data.filter((b: any) => b.userId === user.id || b.createdById === user.id) : [];
+        console.log(userBids);
         setBids(userBids);
       }
     } catch (error) {
@@ -46,6 +45,8 @@ export default function MyBidsPage() {
   };
 
   useEffect(() => {
+    if (!user) return;
+    
     fetchBids();
 
     const fetchCategories = async () => {
@@ -59,7 +60,7 @@ export default function MyBidsPage() {
       }
     };
     fetchCategories();
-  }, []);
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -118,24 +119,14 @@ export default function MyBidsPage() {
   const isBusiness = user?.kyc?.details?.type === 'business' || (user as any)?.kyc?.type === 'business';
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 text-[#101D2D]">
-      {/* Sidebar Layout */}
-      <Sidebar activeItem="My Bids" />
-
-      {/* Main Viewport panel */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-
-        {/* TopNav */}
-        <TopNav userName={user?.name || "Contractor"} userRole={user?.role || "User"} />
-
-        {/* Dashboard Area */}
-        <main className="flex-grow p-6 sm:p-8">
+    <>
+      <div className="p-6 sm:p-8">
 
           {/* Header text */}
           <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black sm:text-3xl">My Bids</h1>
-              <p className="mt-1.5 text-xs font-medium text-zinc-400">
+              <h1 className="text-2xl font-bold sm:text-3xl text-slate-800">My Bids</h1>
+              <p className="mt-1.5 text-xs font-medium text-slate-500">
                 Track your active submissions, contract awards, and bidding history.
               </p>
             </div>
@@ -146,7 +137,7 @@ export default function MyBidsPage() {
                 setSelectedBid(null);
                 setModalMode('create');
               }}
-              className="flex items-center gap-2 rounded-xl bg-[#FF6B2B] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#E55F23] transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-[#5D87FF] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#4570EA] transition-colors"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -228,7 +219,7 @@ export default function MyBidsPage() {
                         <td className="px-6 py-4 text-right flex justify-end gap-3">
                           <Link
                             href={`/dashboard/my-bids/${bid.id}`}
-                            className="text-xs font-bold text-[#101D2D] hover:text-[#FF6B2B]"
+                            className="text-xs font-bold text-slate-700 hover:text-[#5D87FF]"
                           >
                             View
                           </Link>
@@ -254,7 +245,7 @@ export default function MyBidsPage() {
                               });
                               setModalMode('edit');
                             }}
-                            className="text-xs font-bold text-[#FF6B2B] hover:text-[#E55F23]"
+                            className="text-xs font-bold text-[#5D87FF] hover:text-[#4570EA]"
                           >
                             Edit
                           </button>
@@ -266,15 +257,14 @@ export default function MyBidsPage() {
               </table>
             </div>
           </div>
-        </main>
       </div>
 
       {/* Submit Bid Modal */}
       {modalMode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
-              <h2 className="text-lg font-bold text-[#101D2D]">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h2 className="text-lg font-bold text-slate-800">
                 {modalMode === 'create' ? 'Submit New Bid' : modalMode === 'edit' ? 'Edit Bid' : 'Bid Details'}
               </h2>
               <button onClick={() => setModalMode(null)} className="text-zinc-400 hover:text-zinc-600 transition-colors">
@@ -417,7 +407,7 @@ export default function MyBidsPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full rounded-xl bg-[#101D2D] py-3 text-sm font-bold text-white shadow-md hover:bg-opacity-95 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
+                    className="w-full rounded-xl bg-[#5D87FF] py-3 text-sm font-bold text-white shadow-md hover:bg-[#4570EA] hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
                   >
                     {isSubmitting ? "Submitting..." : modalMode === 'edit' ? "Update Bid" : "Confirm & Submit Bid"}
                   </button>
@@ -425,7 +415,7 @@ export default function MyBidsPage() {
                   <button
                     type="button"
                     onClick={() => setModalMode('edit')}
-                    className="w-full rounded-xl bg-[#FF6B2B] py-3 text-sm font-bold text-white shadow-md hover:bg-[#E55F23] hover:-translate-y-0.5 transition-all"
+                    className="w-full rounded-xl bg-[#5D87FF] py-3 text-sm font-bold text-white shadow-md hover:bg-[#4570EA] hover:-translate-y-0.5 transition-all"
                   >
                     Edit this Bid
                   </button>
@@ -435,6 +425,6 @@ export default function MyBidsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

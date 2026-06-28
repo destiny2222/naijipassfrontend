@@ -19,6 +19,7 @@ export interface Bid {
   status: string;
   categoryId: number;
   createdById?: string;
+  userId?: string;
 }
 
 export interface CreateBidPayload {
@@ -68,6 +69,7 @@ export const addBidCategory = async (data: { name: string }): Promise<any> => {
 export const createBid = async (data: CreateBidPayload): Promise<any> => {
   try {
     const response = await api.post("/bids", data);
+     
     return response.data;
   } catch (error) {
     throw error;
@@ -94,7 +96,7 @@ export const patchBid = async (id: string, data: UpdateBidPayload): Promise<any>
 
 export const getBids = async (params?: { categoryId?: number; status?: string; search?: string }): Promise<{ success: boolean; data: Bid[] }> => {
   try {
-    const response = await api.get("/bids", { params });
+    const response = await api.get("/bids", { params }); 
     return response.data;
   } catch (error) {
     throw error;

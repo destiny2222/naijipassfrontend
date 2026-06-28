@@ -10,19 +10,22 @@ export default function Navbar() {
   const pathname = usePathname() || "";
   const { user, logout } = useAuth();
 
-  const activeTab = pathname === "/projects" 
-    ? "Project" 
+  const activeTab = pathname === "/about" 
+    ? "About" 
     : pathname === "/tables" 
-      ? "Tables" 
+      ? "Table" 
       : pathname === "/visualization" 
         ? "Visualization" 
-        : "Home";
+        : pathname === "/projects" 
+          ? "Projects"
+          : pathname === "/" 
+            ? "Home"
+            : "Home";
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/#about" },
-    { name: "Project", href: "/projects" },
-    { name: "Tables", href: "/tables" },
+    { name: "About", href: "/about" },
+    { name: "Projects", href: "/projects" },
+    { name: "Table", href: "/tables" },
     { name: "Visualization", href: "/visualization" },
   ];
 
@@ -33,24 +36,19 @@ export default function Navbar() {
         <div className="flex h-20 items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center">
-            <Link href="#" className="flex items-center gap-2.5 group">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#101D2D] text-white shadow-md transition-transform duration-300 group-hover:scale-105">
-                {/* SVG Icon representing Bid / Contracting (3 overlapping circular points) */}
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <circle cx="12" cy="5" r="3" fill="#FF6B2B" stroke="#FF6B2B" />
-                  <circle cx="6" cy="17" r="3" fill="currentColor" />
-                  <circle cx="18" cy="17" r="3" fill="currentColor" />
-                  <path d="M6 14l6-6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-[#101D2D]">
-                Edo <span className="text-[#FF6B2B]">Bid</span>
+            <Link href="/" className="flex items-center gap-2 group">
+              {/* Brain / Node Icon */}
+              <svg
+                className="h-8 w-8 text-[#0088FF] transition-transform duration-300 group-hover:scale-105"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              <span className="text-2xl font-bold tracking-tight text-[#101D2D]">
+                NaijaPass
               </span>
             </Link>
           </div>
@@ -63,30 +61,28 @@ export default function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-
                   className={`relative py-2 text-sm font-semibold transition-colors duration-250 ${isActive
-                      ? "text-[#FF6B2B]"
-                      : "text-zinc-600 hover:text-[#FF6B2B]"
+                      ? "text-[#0088FF]"
+                      : "text-zinc-600 hover:text-[#0088FF]"
                     }`}
                 >
                   {link.name}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 h-[3px] w-full rounded-full bg-[#FF6B2B]" />
+                    <span className="absolute bottom-0 left-0 h-[3px] w-full rounded-full bg-[#0088FF]" />
                   )}
                 </a>
               );
             })}
           </div>
 
-          {/* Right Utilities (Login, Signup, and Mobile Hamburger) */}
+          {/* Right Utilities */}
           <div className="flex items-center gap-4">
-            {/* Desktop Login & Signup Buttons */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-6">
               {user ? (
                 <>
                   <Link
                     href="/dashboard"
-                    className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
+                    className="text-sm font-semibold text-[#101D2D] hover:text-[#0088FF] transition-colors"
                   >
                     Dashboard
                   </Link>
@@ -101,15 +97,15 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/auth/login"
-                    className="text-sm font-semibold text-[#101D2D] hover:text-[#FF6B2B] transition-colors"
+                    className="text-sm font-semibold text-[#101D2D] hover:text-[#0088FF] transition-colors"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[#FF6B2B] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23] transition-all hover:-translate-y-0.5 active:translate-y-0"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[#0088FF] px-6 text-sm font-semibold text-white shadow-sm hover:bg-[#0070D1] transition-all hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    Sign up
+                    Get Started
                   </Link>
                 </>
               )}
@@ -118,7 +114,7 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex md:hidden p-2 text-zinc-500 hover:text-[#FF6B2B] rounded-lg focus:outline-none"
+              className="inline-flex md:hidden p-2 text-zinc-500 hover:text-[#0088FF] rounded-lg focus:outline-none"
               aria-expanded={isOpen}
             >
               <span className="sr-only">Open main menu</span>
@@ -152,17 +148,12 @@ export default function Navbar() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="#" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#101D2D] text-white">
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="5" r="3" fill="#FF6B2B" stroke="#FF6B2B" />
-                  <circle cx="6" cy="17" r="3" fill="currentColor" />
-                  <circle cx="18" cy="17" r="3" fill="currentColor" />
-                  <path d="M6 14l6-6 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="text-lg font-bold tracking-tight text-[#101D2D]">
-                Edo <span className="text-[#FF6B2B]">Bid</span>
+            <Link href="/" className="flex items-center gap-2">
+              <svg className="h-6 w-6 text-[#0088FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              <span className="text-xl font-bold tracking-tight text-[#101D2D]">
+                NaijaPass
               </span>
             </Link>
           </div>
@@ -183,12 +174,10 @@ export default function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-                  onClick={() => {
-                    setIsOpen(false);
-                  }}
+                  onClick={() => setIsOpen(false)}
                   className={`block rounded-lg px-3 py-2 text-base font-semibold transition-colors ${activeTab === link.name
-                      ? "bg-zinc-50 text-[#FF6B2B]"
-                      : "text-zinc-600 hover:bg-zinc-50 hover:text-[#FF6B2B]"
+                      ? "bg-zinc-50 text-[#0088FF]"
+                      : "text-zinc-600 hover:bg-zinc-50 hover:text-[#0088FF]"
                     }`}
                 >
                   {link.name}
@@ -227,9 +216,9 @@ export default function Navbar() {
                   <Link
                     href="/auth/signup"
                     onClick={() => setIsOpen(false)}
-                    className="flex w-full items-center justify-center rounded-xl bg-[#FF6B2B] py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#E55F23]"
+                    className="flex w-full items-center justify-center rounded-xl bg-[#0088FF] py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0070D1]"
                   >
-                    Sign up
+                    Get Started
                   </Link>
                 </>
               )}

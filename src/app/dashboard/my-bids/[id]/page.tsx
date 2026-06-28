@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/src/components/sidebar/page";
-import TopNav from "@/src/components/tobnav/page";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getBidDetails, Bid, updateBid, getBidCategories, BidCategory } from "@/src/services/bids/bids";
 import { useParams, useRouter } from "next/navigation";
@@ -129,18 +127,8 @@ export default function BidDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 text-[#101D2D]">
-      {/* Sidebar Layout */}
-      <Sidebar activeItem="My Bids" />
-
-      {/* Main Viewport panel */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-
-        {/* TopNav */}
-        <TopNav userName={user?.name || "Contractor"} userRole={user?.role || "User"} />
-
-        {/* Dashboard Area */}
-        <main className="flex-grow p-6 sm:p-8">
+    <>
+      <div className="p-6 sm:p-8">
 
           <div className="mb-8 flex items-center gap-4">
             <button
@@ -152,10 +140,10 @@ export default function BidDetailsPage() {
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-black sm:text-3xl">
+              <h1 className="text-2xl font-bold sm:text-3xl text-slate-800">
                 Bid Details
               </h1>
-              <p className="mt-1 text-xs font-medium text-zinc-400">
+              <p className="mt-1 text-xs font-medium text-slate-500">
                 Viewing full information for {bid.bidNumber}
               </p>
             </div>
@@ -183,7 +171,7 @@ export default function BidDetailsPage() {
                 });
                 setIsEditing(true);
               }}
-              className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#FF6B2B] px-5 text-xs font-bold text-white shadow-md hover:bg-[#E55F23] hover:-translate-y-0.5 transition-all"
+              className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#5D87FF] px-5 text-xs font-bold text-white shadow-md hover:bg-[#4570EA] hover:-translate-y-0.5 transition-all"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -197,8 +185,8 @@ export default function BidDetailsPage() {
               <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                   <div>
-                    <h2 className="text-xl font-bold text-[#101D2D]">{bid.title}</h2>
-                    <div className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">{bid.bidNumber}</div>
+                    <h2 className="text-xl font-bold text-slate-800">{bid.title}</h2>
+                    <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">{bid.bidNumber}</div>
                   </div>
                   <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${getStatusColor(bid.status)}`}>
                     {bid.status || "Unknown"}
@@ -206,7 +194,7 @@ export default function BidDetailsPage() {
                 </div>
 
                 <div className="prose prose-sm max-w-none text-zinc-600">
-                  <h3 className="text-sm font-bold text-[#101D2D] uppercase tracking-wider mb-2 border-b border-zinc-100 pb-2">Description</h3>
+                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">Description</h3>
                   <p className="whitespace-pre-wrap">{bid.description || "No description provided."}</p>
                 </div>
               </div>
@@ -253,15 +241,14 @@ export default function BidDetailsPage() {
               </div>
             </div>
           </div>
-        </main>
       </div>
 
       {/* Edit Bid Modal */}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
-              <h2 className="text-lg font-bold text-[#101D2D]">Edit Bid Details</h2>
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h2 className="text-lg font-bold text-slate-800">Edit Bid Details</h2>
               <button onClick={() => setIsEditing(false)} className="text-zinc-400 hover:text-zinc-600 transition-colors">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -401,7 +388,7 @@ export default function BidDetailsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full rounded-xl bg-[#101D2D] py-3 text-sm font-bold text-white shadow-md hover:bg-opacity-95 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
+                  className="w-full rounded-xl bg-[#5D87FF] py-3 text-sm font-bold text-white shadow-md hover:bg-[#4570EA] hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
                 >
                   {isSubmitting ? "Updating..." : "Update Bid"}
                 </button>
@@ -410,7 +397,7 @@ export default function BidDetailsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

@@ -9,9 +9,9 @@ interface ServiceCardProps {
 
 function ServiceCard({ title, description, href, icon }: ServiceCardProps) {
   return (
-    <div className="hover-lift flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-[#FF6B2B]/20">
+    <div className="hover-lift flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-[#0088FF]/30 hover:shadow-lg hover:shadow-[#0088FF]/5">
       <div>
-        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF6B2B]/10 text-[#FF6B2B]">
+        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#0088FF]/10 text-[#0088FF]">
           {icon}
         </div>
         <h3 className="text-xl font-bold tracking-tight text-[#101D2D]">{title}</h3>
@@ -20,7 +20,7 @@ function ServiceCard({ title, description, href, icon }: ServiceCardProps) {
       <div className="mt-6">
         <Link 
           href={href}
-          className="group inline-flex items-center gap-1.5 text-sm font-semibold text-[#FF6B2B] hover:text-[#E55F23] transition-colors"
+          className="group inline-flex items-center gap-1.5 text-sm font-semibold text-[#0088FF] hover:text-[#0070D1] transition-colors"
         >
           Learn more
           <svg 
@@ -88,8 +88,8 @@ export default function Services() {
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:items-start">
           {/* Left Side Content */}
           <div className="lg:col-span-4 lg:sticky lg:top-28">
-            <div className="inline-flex items-center gap-2 rounded-md bg-[#FF6B2B]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#FF6B2B]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF6B2B]" />
+            <div className="inline-flex items-center gap-2 rounded-md bg-[#0088FF]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#0088FF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0088FF]" />
               Services
             </div>
             <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#101D2D] sm:text-4xl">
@@ -102,7 +102,7 @@ export default function Services() {
             <div className="mt-8">
               <a
                 href="#all-services"
-                className="inline-flex h-12 items-center justify-center rounded-xl bg-[#FF6B2B] px-6 text-sm font-semibold text-white shadow-md shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] hover:shadow-[#E55F23]/20 focus:outline-none hover:-translate-y-0.5 active:translate-y-0"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-[#101D2D] px-6 text-sm font-semibold text-white shadow-md shadow-[#101D2D]/10 transition-all hover:bg-[#1a2e45] hover:-translate-y-0.5 active:translate-y-0"
               >
                 View All Services
               </a>

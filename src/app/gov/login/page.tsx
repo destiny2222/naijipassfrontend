@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LoginPayload, loginUser } from "@/src/services/auth/login";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/src/hooks/useAuth";
-import { useEffect } from "react";
 
-export default function LoginPage() {
+export default function GovLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,9 +16,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      if (user.role === "admin") {
+      if (user.role === 'admin') {
         router.push("/admin/dashboard");
-      } else if (user.role === "gov") {
+      } else if (user.role === 'gov') {
         router.push("/gov/dashboard");
       } else {
         router.push("/dashboard");
@@ -29,25 +28,20 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data: LoginPayload = {
-      email,
-      password,
-    };
+    const data: LoginPayload = { email, password };
     try {
       const response = await loginUser(data);
       toast.success(response.message); 
       localStorage.setItem("email", email);
-      // localStorage.setItem("token", response?.token);
-      // localStorage.setItem("user", JSON.stringify(response.user));
       router.push("/auth/verifyotp");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "An unexpected error occurred during login.");
+      toast.error(error.response?.data?.message || "Invalid Government Credentials.");
     }
   };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-mod-bg px-4 py-12 sm:px-6 lg:px-8">
-
+      
       {/* Top Left Navigation Back Home */}
       <div className="absolute top-6 left-6">
         <Link
@@ -57,7 +51,7 @@ export default function LoginPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Home
+          Back to Main Site
         </Link>
       </div>
 
@@ -67,18 +61,18 @@ export default function LoginPage() {
 
           {/* Logo Section */}
           <div className="flex flex-col items-center text-center">
-            <Link href="/" className="flex items-center gap-2 group mb-2">
+            <div className="flex items-center gap-2 group mb-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-mod-primary/10 text-mod-primary">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
               <span className="text-2xl font-bold tracking-tight text-slate-800">
-                Naija<span className="text-mod-primary">Pass</span>
+                Gov<span className="text-mod-primary">Portal</span>
               </span>
-            </Link>
+            </div>
             <p className="mt-4 text-sm font-medium text-slate-500">
-              Sign in to access your dashboard.
+              State Administrator Access
             </p>
           </div>
 
@@ -87,7 +81,7 @@ export default function LoginPage() {
             {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-semibold text-slate-700">
-                Email Address
+                Official Email
               </label>
               <div className="relative">
                 <input
@@ -96,7 +90,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="admin@state.gov.ng"
                   className="block w-full rounded-lg border border-slate-200 bg-transparent py-2.5 px-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-mod-primary focus:ring-1 focus:ring-mod-primary"
                 />
               </div>
@@ -108,12 +102,6 @@ export default function LoginPage() {
                 <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
                   Password
                 </label>
-                <Link
-                  href="#forgot"
-                  className="text-xs font-semibold text-mod-primary hover:text-blue-700 transition-colors"
-                >
-                  Forgot Password?
-                </Link>
               </div>
               <div className="relative">
                 <input
@@ -152,54 +140,6 @@ export default function LoginPage() {
               Sign In
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="relative mt-8">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-xs font-semibold uppercase tracking-wider">
-              <span className="bg-white px-3 text-slate-400">Or continue with</span>
-            </div>
-          </div>
-
-          {/* Google Login */}
-          <button
-            type="button"
-            className="mt-6 flex w-full h-11 items-center justify-center gap-3 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none active:bg-slate-100"
-          >
-            {/* Google Icon */}
-            <svg className="h-5 w-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.53-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-8.77z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.08 1.16-3.14 0-5.8-2.11-6.75-4.96H1.31v3.15C3.29 22.36 7.39 24 12 24z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.25 14.24A7.18 7.18 0 014.9 12c0-.79.13-1.57.35-2.31V6.54H1.31A11.94 11.94 0 000 12c0 2.01.5 3.91 1.31 5.61l3.94-3.37z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.39 0 3.29 1.64 1.31 5.37l3.94 3.09c.95-2.85 3.61-4.96 6.75-4.96z"
-              />
-            </svg>
-            Sign in with Google
-          </button>
-
-          {/* Redirect to Register / Request Access */}
-          <div className="mt-8 text-center text-sm">
-            <span className="text-slate-500">Don&apos;t have an account? </span>
-            <Link
-              href="/auth/signup"
-              className="font-semibold text-mod-primary hover:text-blue-700 transition-colors"
-            >
-              Request Access
-            </Link>
-          </div>
 
         </div>
       </div>

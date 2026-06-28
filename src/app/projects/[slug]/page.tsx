@@ -9,6 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { useAuth } from "@/src/hooks/useAuth";
+import { ArrowLeft, Calendar, MapPin, BarChart3, Building2, Star, Send } from "lucide-react";
 
 export default function PublicBidDetailsPage() {
   const [bid, setBid] = useState<Bid | null>(null);
@@ -119,8 +120,9 @@ export default function PublicBidDetailsPage() {
     return (
       <div className="flex min-h-screen flex-col bg-zinc-50/50">
         <Navbar />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-zinc-500 font-medium animate-pulse">Loading tender details...</div>
+        <main className="flex-grow flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0088FF] mb-4"></div>
+          <div className="text-zinc-500 font-bold text-sm animate-pulse">Loading tender details...</div>
         </main>
         <Footer />
       </div>
@@ -151,55 +153,64 @@ export default function PublicBidDetailsPage() {
       <main className="flex-grow">
         <Breadcrumb />
         
-        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center gap-4">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mb-10 flex items-center gap-5">
             <button 
               onClick={() => router.back()}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm border border-zinc-200 text-zinc-600 hover:text-[#FF6B2B] hover:border-[#FF6B2B]/30 transition-all"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-zinc-200 text-zinc-500 hover:text-[#0088FF] hover:border-[#0088FF]/30 hover:shadow-md transition-all group"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
+              <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </button>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#FF6B2B]">
-                Tender Details
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#0088FF]/20 bg-[#0088FF]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0088FF] mb-2">
+                Tender Overview
               </span>
-              <h1 className="mt-1 text-2xl font-black sm:text-3xl">
-                {bid.bidNumber}
+              <h1 className="text-3xl font-black sm:text-4xl tracking-tight text-[#101D2D]">
+                Ref: {bid.bidNumber}
               </h1>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content Area */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="rounded-2xl border border-zinc-100 bg-white p-6 sm:p-8 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-[#101D2D]">{bid.title}</h2>
-                  </div>
-                  <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${getStatusColor(bid.status)}`}>
+            <div className="lg:col-span-2 space-y-8">
+              {/* Project Title and Description */}
+              <div className="rounded-[2rem] border border-zinc-100 bg-white p-8 sm:p-10 shadow-sm transition-all hover:shadow-lg">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+                  <h2 className="text-2xl font-black text-[#101D2D] max-w-2xl leading-tight">{bid.title}</h2>
+                  <span className={`inline-flex items-center rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-widest ${getStatusColor(bid.status)} shadow-sm`}>
+                    <span className={`mr-2 h-2 w-2 rounded-full animate-pulse ${bid.status?.toLowerCase() === 'active' || bid.status?.toLowerCase() === 'published' ? 'bg-emerald-500' : 'bg-current'}`} />
                     {bid.status || "Unknown"}
                   </span>
                 </div>
                 
                 <div className="prose prose-sm max-w-none text-zinc-600">
-                  <h3 className="text-sm font-bold text-[#101D2D] uppercase tracking-wider mb-3 border-b border-zinc-100 pb-2">Description</h3>
-                  <p className="whitespace-pre-wrap leading-relaxed">{bid.description || "No description provided."}</p>
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4 border-b border-zinc-100 pb-3">Project Description</h3>
+                  <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{bid.description || "No description provided."}</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-zinc-100 bg-white p-6 sm:p-8 shadow-sm">
-                <h3 className="text-sm font-bold text-[#101D2D] uppercase tracking-wider mb-5 border-b border-zinc-100 pb-3">Procurement Entities</h3>
+              {/* Entities Involved */}
+              <div className="rounded-[2rem] border border-zinc-100 bg-white p-8 sm:p-10 shadow-sm transition-all hover:shadow-lg">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-100 pb-3">Procurement Entities</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Issuing Agency</div>
-                    <div className="font-medium text-[#101D2D] text-sm">{bid.agency}</div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0088FF]/10 text-[#0088FF]">
+                      <Building2 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Issuing Agency</div>
+                      <div className="font-bold text-[#101D2D] text-sm">{bid.agency}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Procuring Entity</div>
-                    <div className="font-medium text-[#101D2D] text-sm">{bid.procuringEntity || "Same as Issuing Agency"}</div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                      <Building2 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Procuring Entity</div>
+                      <div className="font-bold text-[#101D2D] text-sm">{bid.procuringEntity || "Same as Issuing Agency"}</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -207,71 +218,85 @@ export default function PublicBidDetailsPage() {
 
             {/* Sidebar Widgets */}
             <div className="space-y-6">
-              <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-[#101D2D] uppercase tracking-wider mb-5 border-b border-zinc-100 pb-3">Key Information</h3>
+              
+              {/* Action Box */}
+              <div className="rounded-[2rem] border border-zinc-100 bg-white p-8 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-gradient-to-br from-[#0088FF]/10 to-transparent blur-2xl pointer-events-none" />
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-100 pb-3 relative z-10">Submission</h3>
                 
-                <div className="space-y-5">
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Deadline</div>
-                    <div className={`font-medium text-sm ${isPastDeadline ? "text-rose-600 font-bold" : "text-[#101D2D]"}`}>
-                      {new Date(bid.deadline).toLocaleString(undefined, {
-                        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                      })}
+                <div className="space-y-6 relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isPastDeadline ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Deadline</div>
+                      <div className={`font-bold text-sm ${isPastDeadline ? "text-rose-600" : "text-[#101D2D]"}`}>
+                        {new Date(bid.deadline).toLocaleString(undefined, {
+                          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </div>
                     </div>
                   </div>
                   
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Sector</div>
-                    <div className="font-medium text-sm text-[#101D2D]">{bid.sector || "N/A"}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0088FF]/10 text-[#0088FF]">
+                      <BarChart3 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Sector</div>
+                      <div className="font-bold text-sm text-[#101D2D]">{bid.sector || "General"}</div>
+                    </div>
                   </div>
                   
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Location</div>
-                    <div className="font-medium text-sm text-[#101D2D]">{bid.location || "N/A"}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0088FF]/10 text-[#0088FF]">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Location</div>
+                      <div className="font-bold text-sm text-[#101D2D]">{bid.location || "Statewide"}</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-zinc-100">
+                <div className="mt-8 pt-8 border-t border-zinc-100 relative z-10">
                   {!user ? (
                     <>
                       <Link 
                         href="/login"
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B2B] px-5 py-3.5 text-xs font-bold text-white shadow-md hover:bg-[#E55F23] hover:-translate-y-0.5 transition-all"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0088FF] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#0088FF]/20 hover:bg-[#0070D1] hover:-translate-y-0.5 transition-all"
                       >
                         Login to Apply
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
+                        <ArrowLeft className="h-4 w-4 rotate-180" />
                       </Link>
-                      <p className="text-center mt-3 text-[10px] text-zinc-400">
-                        You must be a registered contractor to bid on this tender.
+                      <p className="text-center mt-4 text-[11px] font-medium text-zinc-400">
+                        You must be a registered contractor to bid.
                       </p>
                     </>
                   ) : bid.createdById === user.id ? (
                     <>
                       <button 
                         disabled
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 px-5 py-3.5 text-xs font-bold text-zinc-400 cursor-not-allowed"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-100 px-6 py-4 text-sm font-bold text-zinc-400 cursor-not-allowed"
                       >
-                        Cannot Apply
+                        Creator Cannot Apply
                       </button>
-                      <p className="text-center mt-3 text-[10px] text-zinc-400">
-                        You are the creator of this bid.
+                      <p className="text-center mt-4 text-[11px] font-medium text-zinc-400">
+                        You are the owner of this bid.
                       </p>
                     </>
                   ) : (
                     <>
                       <button 
                         onClick={() => setIsApplyModalOpen(true)}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B2B] px-5 py-3.5 text-xs font-bold text-white shadow-md hover:bg-[#E55F23] hover:-translate-y-0.5 transition-all"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0088FF] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#0088FF]/20 hover:bg-[#0070D1] hover:-translate-y-0.5 transition-all"
                       >
-                        Apply for this Bid
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
+                        Submit Application
+                        <Send className="h-4 w-4" />
                       </button>
-                      <p className="text-center mt-3 text-[10px] text-zinc-400">
-                        Submit your technical and financial proposal for this tender.
+                      <p className="text-center mt-4 text-[11px] font-medium text-zinc-400">
+                        Submit your technical and financial proposal.
                       </p>
                     </>
                   )}
@@ -282,90 +307,78 @@ export default function PublicBidDetailsPage() {
         </div>
 
         {/* Reviews Section */}
-        <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 mt-12">
-          <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-zinc-100">
-            <h2 className="text-2xl font-black mb-6">Reviews</h2>
-
-            <div className="space-y-6 mb-10">
-              {reviews.length === 0 ? (
-                <p className="text-sm text-zinc-500 italic">No reviews yet. Be the first to leave a review!</p>
-              ) : (
-                reviews.map((review) => (
-                  <div key={review.id} className="pb-6 border-b border-zinc-100 last:border-0 last:pb-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-10 w-10 bg-zinc-100 rounded-full flex items-center justify-center font-bold text-zinc-500 uppercase">
-                        {review.user?.name?.substring(0, 2) || "U"}
-                      </div>
-                      <div>
-                        <div className="font-bold text-sm text-[#101D2D]">{review.user?.name || "Unknown User"}</div>
-                        <div className="flex gap-1 text-amber-400">
-                          {[...Array(5)].map((_, i) => (
-                            <svg key={i} className={`h-3 w-3 ${i < review.rating ? "fill-current" : "text-zinc-200 fill-current"}`} viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-xs text-zinc-400 ml-auto">{new Date(review.createdAt).toLocaleDateString()}</div>
-                    </div>
-                    <p className="text-sm text-zinc-600 leading-relaxed mt-3">{review.comment}</p>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6 lg:px-8 mt-4">
+          <div className="bg-white rounded-[2rem] p-8 sm:p-12 shadow-sm border border-zinc-100 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            
+            <h2 className="text-2xl font-black mb-8 relative z-10 flex items-center gap-3">
+              <Star className="h-6 w-6 text-amber-400 fill-amber-400" />
+              Community Reviews
+            </h2>            
+            
+            <div className="relative z-10">
+              {!user ? (
+                <div className="bg-zinc-50 rounded-2xl p-8 border border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div>
+                    <h3 className="font-bold text-sm text-[#101D2D]">Log in to write a review</h3>
+                    <p className="text-xs text-zinc-500 mt-1.5 font-medium">Join the community to share your feedback securely.</p>
                   </div>
-                ))
+                  <Link href="/login" className="rounded-2xl bg-[#101D2D] px-8 py-3.5 text-xs font-bold text-white shadow-md hover:bg-black transition-all hover:-translate-y-0.5 shrink-0">
+                    Login
+                  </Link>
+                </div>
+              ) : bid?.createdById === user.id ? (
+                <div className="bg-amber-50/50 rounded-2xl p-6 border border-amber-100 text-center">
+                  <p className="text-sm text-amber-700 font-bold">You cannot submit a review for your own project.</p>
+                </div>
+              ) : reviews.some(r => r.user?.id === user.id || (r as any).userId === user.id) ? (
+                <div className="bg-emerald-50/50 rounded-2xl p-6 border border-emerald-100 text-center flex flex-col items-center gap-2">
+                  <div className="h-10 w-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                    <Star className="h-5 w-5 fill-emerald-600" />
+                  </div>
+                  <p className="text-sm text-emerald-700 font-bold">You have already reviewed this project.</p>
+                </div>
+              ) : (
+                <div className="bg-zinc-50/50 rounded-3xl p-8 border border-zinc-100 max-w-2xl">
+                  <h3 className="font-black mb-6 text-[#101D2D]">Write a Review</h3>
+                  <form onSubmit={handleReviewSubmit} className="flex flex-col gap-6">
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Rate Your Experience</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                            className={`focus:outline-none transition-transform hover:scale-110 ${reviewForm.rating >= star ? 'text-amber-400' : 'text-zinc-200'} hover:text-amber-400`}
+                          >
+                            <Star className={`h-8 w-8 ${reviewForm.rating >= star ? 'fill-current' : ''}`} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Feedback</label>
+                      <textarea
+                        required
+                        rows={4}
+                        className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-medium text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#0088FF] focus:ring-4 focus:ring-[#0088FF]/10 resize-none shadow-sm"
+                        placeholder="Share your thoughts about this bid process..."
+                        value={reviewForm.comment}
+                        onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReview}
+                      className="self-start rounded-2xl bg-[#101D2D] px-8 py-4 text-xs font-bold text-white shadow-md hover:bg-black disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+                    >
+                      {isSubmittingReview ? 'Submitting...' : 'Post Review'}
+                    </button>
+                  </form>
+                </div>
               )}
             </div>
-
-            {user ? (
-              <div className="bg-zinc-50/50 rounded-2xl p-6 border border-zinc-100">
-                <h3 className="font-bold mb-4">Write a Review</h3>
-                <form onSubmit={handleReviewSubmit} className="flex flex-col gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Rating</label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                          className={`focus:outline-none ${reviewForm.rating >= star ? 'text-amber-400' : 'text-zinc-300'} hover:text-amber-500 transition-colors`}
-                        >
-                          <svg className="h-8 w-8 fill-current" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Comment</label>
-                    <textarea
-                      required
-                      rows={4}
-                      className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#FF6B2B] focus:ring-4 focus:ring-[#FF6B2B]/10 resize-none"
-                      placeholder="Share your thoughts about this bid..."
-                      value={reviewForm.comment}
-                      onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isSubmittingReview}
-                    className="self-start rounded-xl bg-[#101D2D] px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-black disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100 flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-[#101D2D]">Log in to write a review</h3>
-                  <p className="text-xs text-zinc-500 mt-1">Join the community to share your feedback.</p>
-                </div>
-                <Link href="/login" className="rounded-xl bg-[#101D2D] px-6 py-3 text-xs font-bold text-white shadow-md hover:bg-black transition-colors">
-                  Login
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </main>
@@ -375,58 +388,68 @@ export default function PublicBidDetailsPage() {
       {/* Application Modal */}
       {isApplyModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101D2D]/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
+          <div className="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-8 py-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
               <div>
-                <h3 className="text-lg font-black text-[#101D2D]">Submit Application</h3>
-                <p className="text-[11px] text-zinc-400 mt-1">Provide your proposal details</p>
+                <h3 className="text-xl font-black text-[#101D2D]">Submit Application</h3>
+                <p className="text-xs font-medium text-zinc-500 mt-1">Provide your proposal details</p>
               </div>
               <button 
                 onClick={() => setIsApplyModalOpen(false)}
-                className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 rounded-lg transition-colors"
+                className="flex h-10 w-10 items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200/50 rounded-full transition-colors"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             
-            <form onSubmit={handleApplySubmit} className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
+            <form onSubmit={handleApplySubmit} className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
               <div>
-                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Proposal / Cover Letter <span className="text-red-500">*</span></label>
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5">Proposal / Cover Letter <span className="text-red-500">*</span></label>
                 <textarea
                   required
                   rows={6}
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#FF6B2B] focus:ring-4 focus:ring-[#FF6B2B]/10 resize-none"
-                  placeholder="Explain why you are a good fit for this bid..."
+                  className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-medium text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#0088FF] focus:ring-4 focus:ring-[#0088FF]/10 resize-none shadow-sm"
+                  placeholder="Explain why your company is the perfect fit for this bid..."
                   value={applyFormData.proposalText}
                   onChange={(e) => setApplyFormData({ ...applyFormData, proposalText: e.target.value })}
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Proposed Amount (₦) <span className="text-zinc-400 lowercase font-normal">(Optional)</span></label>
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5">Proposed Amount (₦) <span className="text-zinc-400 lowercase font-normal">(Optional)</span></label>
                 <input
                   type="text"
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#FF6B2B] focus:ring-4 focus:ring-[#FF6B2B]/10"
-                  placeholder="e.g. 500000"
+                  className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-medium text-[#101D2D] outline-none transition-all placeholder:text-zinc-400 focus:border-[#0088FF] focus:ring-4 focus:ring-[#0088FF]/10 shadow-sm"
+                  placeholder="e.g. 5,000,000"
                   value={applyFormData.proposedAmount}
                   onChange={(e) => setApplyFormData({ ...applyFormData, proposedAmount: e.target.value })}
                 />
               </div>
 
-              <div className="pt-2 flex gap-3">
+              <div className="pt-4 flex gap-4">
                 <button
                   type="button"
                   onClick={() => setIsApplyModalOpen(false)}
-                  className="flex-1 rounded-xl bg-zinc-100 px-4 py-3 text-xs font-bold text-[#101D2D] hover:bg-zinc-200 transition-colors"
+                  className="flex-1 rounded-2xl bg-zinc-100 px-4 py-4 text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 flex justify-center items-center gap-2 rounded-xl bg-[#FF6B2B] px-4 py-3 text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/20 hover:bg-[#E55F23] disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 flex justify-center items-center gap-2 rounded-2xl bg-[#0088FF] px-4 py-4 text-sm font-bold text-white shadow-lg shadow-[#0088FF]/20 hover:bg-[#0070D1] disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Application
+                      <Send className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>

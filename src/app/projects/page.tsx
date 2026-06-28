@@ -5,7 +5,10 @@ import Navbar from "@/src/components/Navbar";
 import Footer from "@/src/components/Footer";
 import Breadcrumb from "@/src/components/Breadcrumb";
 import { getBids } from "@/src/services/bids/bids";
+import { analyzeCompliance } from "@/src/services/assistant";
+import { useAuth } from "@/src/hooks/useAuth";
 import Link from "next/link";
+import { Search, Filter, Bot, BarChart3, TrendingUp, Building2, Calendar, MapPin, Briefcase } from "lucide-react";
 
 interface Tender {
   id: string;
@@ -29,6 +32,8 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [question, setQuestion] = useState("");
+  const { user } = useAuth();
 
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,15 +81,22 @@ export default function ProjectsPage() {
     return matchesSector && matchesSource && matchesLocation && matchesSearch;
   });
 
-  const handleStartCompliance = () => {
+  const handleStartCompliance = async () => {
     setAnalyzing(true);
     setAiAnalysisResult(null);
-    setTimeout(() => {
+    try {
+      const result = await analyzeCompliance(question);
+      if (result.success && result.analysis) {
+        setAiAnalysisResult(result.analysis);
+        setQuestion(""); // Clear question on success
+      } else {
+        setAiAnalysisResult(result.message || "Failed to analyze compliance.");
+      }
+    } catch (error) {
+      setAiAnalysisResult("An error occurred during AI analysis.");
+    } finally {
       setAnalyzing(false);
-      setAiAnalysisResult(
-        "Analysis Complete: Your profile matches 94% of standard tender pre-requisites! Ensure you have an active Tax Clearance (TCC) valid through 2024 before submission."
-      );
-    }, 1500);
+    }
   };
 
   return (
@@ -93,33 +105,40 @@ export default function ProjectsPage() {
 
       <main className="flex-grow">
         <Breadcrumb />
-        <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         
         {/* Header Block */}
-        <div className="mb-10">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#FF6B2B]">
-            Procurement & Open Contracting
-          </span>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#101D2D] sm:text-4xl">
-            Open Tenders & Opportunities
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-500">
-            Explore, filter, and bid on active infrastructure and service projects across the state.
-            Ensuring transparency, accessibility, and competitive procurement for all contractors.
-          </p>
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#0088FF]/20 bg-[#0088FF]/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0088FF] mb-4">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0088FF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0088FF]"></span>
+              </span>
+              Procurement & Open Contracting
+            </div>
+            <h1 className="text-3xl font-black tracking-tight text-[#101D2D] sm:text-5xl">
+              Open Tenders & Opportunities
+            </h1>
+            <p className="mt-4 text-sm leading-relaxed text-zinc-500 font-medium max-w-3xl">
+              Explore, filter, and bid on active infrastructure and service projects across the state.
+              Ensuring transparency, accessibility, and competitive procurement for all contractors.
+            </p>
+          </div>
         </div>
 
-        {/* Filter bar */}
-        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+        {/* Filter bar - Sleek Glassmorphism */}
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-zinc-200/60 bg-white/70 backdrop-blur-xl p-3 shadow-sm">
           {/* Left: Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Filters:</span>
+          <div className="flex flex-wrap items-center gap-3 pl-2">
+            <Filter className="h-4 w-4 text-zinc-400" />
+            <span className="hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-zinc-400">Filters:</span>
             
-            {/* Sector select dropdown */}
+            {/* Sector */}
             <select
               value={selectedSector}
               onChange={(e) => setSelectedSector(e.target.value)}
-              className="rounded-xl border border-zinc-200 bg-zinc-50/50 py-2 px-3.5 text-xs font-bold text-zinc-700 outline-none focus:border-[#FF6B2B]/60 focus:bg-white"
+              className="rounded-2xl border-none bg-zinc-100/80 py-2.5 px-4 text-xs font-bold text-[#101D2D] outline-none transition-all hover:bg-zinc-200/80 focus:ring-2 focus:ring-[#0088FF]/20 cursor-pointer"
             >
               <option value="All">All Sectors</option>
               <option value="Infrastructure">Infrastructure</option>
@@ -127,43 +146,30 @@ export default function ProjectsPage() {
               <option value="Water & Sanitation">Water & Sanitation</option>
             </select>
 
-            {/* Location dropdown */}
+            {/* Location */}
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="rounded-xl border border-zinc-200 bg-zinc-50/50 py-2 px-3.5 text-xs font-bold text-zinc-700 outline-none focus:border-[#FF6B2B]/60 focus:bg-white"
+              className="rounded-2xl border-none bg-zinc-100/80 py-2.5 px-4 text-xs font-bold text-[#101D2D] outline-none transition-all hover:bg-zinc-200/80 focus:ring-2 focus:ring-[#0088FF]/20 cursor-pointer"
             >
               <option value="All">All Locations</option>
               {uniqueLocations.map(loc => (
                 <option key={loc} value={loc}>{loc}</option>
               ))}
             </select>
-
-            {/* Bid Source dropdown */}
-            <select
-              value={selectedSource}
-              onChange={(e) => setSelectedSource(e.target.value)}
-              className="rounded-xl border border-zinc-200 bg-zinc-50/50 py-2 px-3.5 text-xs font-bold text-zinc-700 outline-none focus:border-[#FF6B2B]/60 focus:bg-white"
-            >
-              <option value="All">Bid Source: All</option>
-              <option value="Government">Government</option>
-              <option value="Private">Private</option>
-            </select>
           </div>
 
           {/* Right: Search */}
-          <div className="relative w-full lg:w-72">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
-              <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+          <div className="relative w-full lg:w-80">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-400">
+              <Search className="h-4 w-4" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tenders..."
-              className="block w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#FF6B2B]/60 focus:bg-white focus:ring-1 focus:ring-[#FF6B2B]/60"
+              placeholder="Search tenders, refs, agencies..."
+              className="block w-full rounded-2xl border border-zinc-200 bg-white py-3 pl-11 pr-4 text-sm font-medium text-zinc-800 placeholder-zinc-400 outline-none transition-all focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 shadow-sm"
             />
           </div>
         </div>
@@ -174,158 +180,184 @@ export default function ProjectsPage() {
           {/* Left 2 Cols: Tender List */}
           <div className="lg:col-span-2 space-y-6">
             {loading ? (
-              <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center">
-                <p className="text-sm text-zinc-500">Loading open tenders...</p>
+              <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-zinc-200 bg-white py-20">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0088FF]"></div>
+                <p className="mt-4 text-sm font-semibold text-zinc-500">Loading open tenders...</p>
               </div>
             ) : filteredTenders.length > 0 ? (
               filteredTenders.map((tender) => (
                 <div 
                   key={tender.id}
-                  className="group relative rounded-2xl border border-zinc-100 bg-white p-6 shadow-md transition-all duration-300 hover:shadow-xl hover:border-zinc-200/60 hover:-translate-y-0.5"
+                  className="group relative overflow-hidden rounded-[2rem] border border-zinc-100 bg-white p-1 transition-all duration-300 hover:shadow-2xl hover:shadow-[#0088FF]/5 hover:-translate-y-1"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">
-                      Ref: {tender.ref}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                        tender.type === "Government" ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700"
-                      }`}>
-                        {tender.type}
+                  {/* Subtle hover gradient border effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0088FF]/0 to-[#0088FF]/0 opacity-0 transition-opacity duration-300 group-hover:from-[#0088FF]/5 group-hover:to-transparent group-hover:opacity-100" />
+                  
+                  <div className="relative rounded-[1.8rem] bg-white p-6 sm:p-8">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                        <Briefcase className="h-3 w-3" />
+                        Ref: {tender.ref}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                        {tender.status}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`inline-flex items-center rounded-xl px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest ${
+                          tender.type === "Government" ? "bg-blue-50 text-[#0088FF]" : "bg-purple-50 text-purple-700"
+                        }`}>
+                          {tender.type}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          {tender.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <h3 className="mt-3 text-lg font-bold text-[#101D2D] transition-colors group-hover:text-[#FF6B2B]">
-                    {tender.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
-                    {tender.desc}
-                  </p>
+                    <h3 className="mt-5 text-xl font-black text-[#101D2D] transition-colors group-hover:text-[#0088FF]">
+                      {tender.title}
+                    </h3>
+                    <p className="mt-3 text-sm text-zinc-500 leading-relaxed font-medium line-clamp-2">
+                      {tender.desc}
+                    </p>
 
-                  <div className="mt-6 grid grid-cols-2 gap-4 border-t border-zinc-100 pt-5 text-xs text-zinc-500 sm:grid-cols-5">
-                    <div>
-                      <span className="block font-bold text-zinc-400 uppercase tracking-wide text-[10px]">Procuring Entity</span>
-                      <span className="mt-1 block font-bold text-[#101D2D]">{tender.procuringEntity}</span>
+                    <div className="mt-8 grid grid-cols-2 gap-4 border-t border-zinc-100 pt-6 sm:grid-cols-4">
+                      <div>
+                        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                          <Building2 className="h-3.5 w-3.5" />
+                          Agency
+                        </span>
+                        <span className="block text-sm font-bold text-[#101D2D] truncate" title={tender.procuringEntity}>{tender.procuringEntity}</span>
+                      </div>
+                      <div>
+                        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                          <BarChart3 className="h-3.5 w-3.5" />
+                          Sector
+                        </span>
+                        <span className="block text-sm font-bold text-zinc-700 truncate">{tender.sector}</span>
+                      </div>
+                      <div>
+                        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                          <MapPin className="h-3.5 w-3.5" />
+                          Location
+                        </span>
+                        <span className="block text-sm font-bold text-zinc-700 truncate">{tender.location}</span>
+                      </div>
+                      <div>
+                        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          Deadline
+                        </span>
+                        <span className="block text-sm font-bold text-[#0088FF]">{tender.deadline}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="block font-bold text-zinc-400 uppercase tracking-wide text-[10px]">Budget Est.</span>
-                      <span className="mt-1 block font-bold text-[#101D2D] text-sm">{tender.budget}</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-zinc-400 uppercase tracking-wide text-[10px]">Sector</span>
-                      <span className="mt-1 block text-zinc-800 font-semibold">{tender.sector}</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-zinc-400 uppercase tracking-wide text-[10px]">LGA Location</span>
-                      <span className="mt-1 block text-zinc-800 font-semibold">{tender.location}</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-zinc-400 uppercase tracking-wide text-[10px]">Deadline</span>
-                      <span className="mt-1 block text-[#FF6B2B] font-bold">{tender.deadline}</span>
-                    </div>
-                  </div>
 
-                  <div className="mt-6 flex items-center justify-end">
-                    <Link href={`/projects/${tender.slug || tender.id}`} className="rounded-xl bg-[#FF6B2B] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] hover:shadow-[#E55F23]/25 active:translate-y-0">
-                      View Details
-                    </Link>
+                    <div className="mt-8 flex items-center justify-end">
+                      <Link href={`/projects/${tender.slug || tender.id}`} className="group/btn inline-flex items-center gap-2 rounded-2xl bg-[#0088FF] px-6 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(0,136,255,0.3)] transition-all hover:bg-[#0070D1] hover:shadow-[0_0_25px_rgba(0,136,255,0.4)] hover:-translate-y-0.5">
+                        View Details
+                        <svg className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center">
-                <p className="text-sm text-zinc-500">No tenders matches your current search filters.</p>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {filteredTenders.length > 0 && (
-              <div className="flex items-center justify-center gap-2 pt-6">
-                <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#101D2D] text-white text-xs font-bold shadow-md">1</button>
-                <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-zinc-600 text-xs font-bold hover:bg-zinc-100 transition-colors border border-zinc-100">2</button>
-                <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-zinc-600 text-xs font-bold hover:bg-zinc-100 transition-colors border border-zinc-100">3</button>
-                <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-zinc-600 text-xs font-bold hover:bg-zinc-100 transition-colors border border-zinc-100">&gt;</button>
+              <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-zinc-200 bg-white py-20 text-center">
+                <Search className="h-10 w-10 text-zinc-300 mb-4" />
+                <h3 className="text-lg font-bold text-[#101D2D]">No Tenders Found</h3>
+                <p className="mt-2 text-sm font-medium text-zinc-500 max-w-md mx-auto">
+                  We couldn't find any projects matching your current filters. Try adjusting your search criteria or selecting "All".
+                </p>
+                <button 
+                  onClick={() => { setSelectedSector("All"); setSelectedLocation("All"); setSelectedSource("All"); setSearchQuery(""); }}
+                  className="mt-6 rounded-xl bg-zinc-100 px-5 py-2.5 text-xs font-bold text-zinc-600 transition-colors hover:bg-zinc-200"
+                >
+                  Clear Filters
+                </button>
               </div>
             )}
           </div>
 
           {/* Right 1 Col: Widgets */}
-          <div className="space-y-8">
-            {/* AI Assistant Widget */}
-            <div className="rounded-2xl border border-zinc-150 bg-[#101D2D] p-6 text-white shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-gradient-to-br from-[#FF6B2B]/20 to-transparent blur-2xl" />
-              <div className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-[#FF6B2B] shadow-inner backdrop-blur-md">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
+          <div className="space-y-6">
+            
+            {/* AI Assistant Widget - Modernized */}
+            <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#101D2D] to-[#1a2b42] p-8 text-white shadow-xl">
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#0088FF]/30 blur-[40px] transition-all duration-700 group-hover:bg-[#0088FF]/50 group-hover:scale-150" />
+              <div className="relative z-10">
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shadow-inner backdrop-blur-md border border-white/5">
+                  <Bot className="h-7 w-7 text-[#0088FF]" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold">Bid Assistant</h3>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-400">
-                  Need help navigating the requirements? Our AI assistant can review your documents and ensure compliance before submission.
+                <h3 className="text-2xl font-black tracking-tight">Bid Assistant AI</h3>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                  Instantly analyze your company profile against active tenders to check your pre-requisite compliance and win-rate probability.
                 </p>
 
                 {aiAnalysisResult && (
-                  <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-3.5 text-xs text-zinc-200 leading-normal">
+                  <div className="mt-6 rounded-2xl bg-[#0088FF]/10 border border-[#0088FF]/20 p-4 text-sm font-semibold text-[#88c4ff] leading-relaxed backdrop-blur-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <span className="flex items-center gap-2 mb-2 text-white">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      </span>
+                      Analysis Complete
+                    </span>
                     {aiAnalysisResult}
                   </div>
                 )}
 
+                <div className="mt-6">
+                  <textarea
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask a question about bidding, compliance, or your profile..."
+                    className="w-full rounded-xl bg-white/5 border border-white/10 p-3 text-sm text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#0088FF]/50 resize-none transition-all"
+                    rows={2}
+                  />
+                </div>
+
                 <button 
                   onClick={handleStartCompliance}
                   disabled={analyzing}
-                  className="mt-5 flex w-full h-11 items-center justify-center rounded-xl bg-[#FF6B2B] text-xs font-bold text-white shadow-md shadow-[#FF6B2B]/10 transition-all hover:bg-[#E55F23] disabled:opacity-60"
+                  className="mt-4 flex w-full h-12 items-center justify-center gap-2 rounded-xl bg-[#0088FF] text-sm font-bold text-white shadow-[0_0_20px_rgba(0,136,255,0.3)] transition-all hover:bg-[#0070D1] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
                 >
-                  {analyzing ? "Analyzing Document..." : "Start Compliance Check"}
+                  {analyzing ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Analyzing...
+                    </>
+                  ) : question ? "Ask Assistant" : "Start Compliance Check"}
                 </button>
               </div>
             </div>
  
 
             {/* Premium Quick Stats Widget */}
-            {/* <div className="grid grid-cols-2 gap-4">
-              <div className="group relative overflow-hidden rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:border-zinc-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="relative">
-                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 transition-colors group-hover:bg-[#101D2D] group-hover:text-white">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <span className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total Value</span>
-                  <span className="mt-1 block text-xl font-black text-[#101D2D]">₦--</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="group overflow-hidden rounded-[2rem] border border-zinc-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:border-[#0088FF]/30">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#0088FF]/10 text-[#0088FF] transition-colors group-hover:bg-[#0088FF] group-hover:text-white">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
+                <span className="block text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Total Value</span>
+                <span className="mt-1.5 block text-2xl font-black text-[#101D2D]">₦1.4B+</span>
               </div>
               
-              <div className="group relative overflow-hidden rounded-2xl bg-[#101D2D] p-5 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-[#FF6B2B]/40 to-transparent blur-xl transition-all group-hover:scale-110" />
-                <div className="relative">
-                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-[#FF6B2B] shadow-inner backdrop-blur-md">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                  </div>
-                  <span className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Open Tenders</span>
-                  <span className="mt-1 flex items-baseline gap-1 text-xl font-black text-white">
-                    {tenders.length}
-                    <span className="text-xs font-semibold text-[#FF6B2B]">Active</span>
-                  </span>
+              <div className="group overflow-hidden rounded-[2rem] bg-white border border-zinc-100 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:border-emerald-500/30">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-500 group-hover:text-white">
+                  <Briefcase className="h-5 w-5" />
                 </div>
+                <span className="block text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Open Tenders</span>
+                <span className="mt-1.5 flex items-baseline gap-1 text-2xl font-black text-[#101D2D]">
+                  {tenders.length}
+                  <span className="text-xs font-bold text-emerald-600 ml-1">Active</span>
+                </span>
               </div>
-            </div> */}
+            </div>
 
           </div>
-
         </div>
-
         </div>
       </main>
-
       <Footer />
     </div>
   );

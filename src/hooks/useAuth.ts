@@ -26,19 +26,7 @@ export interface UserProfile {
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    if (typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser && savedUser !== 'undefined') {
-        try {
-          return JSON.parse(savedUser);
-        } catch (e) {
-          return null;
-        }
-      }
-    }
-    return null;
-  });
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -53,6 +41,13 @@ export const useAuth = () => {
       if (userData && userData.id) {
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Sync cookies for middleware
+        const token = localStorage.getItem('token');
+        if (token) {
+          document.cookie = `auth_token=${token}; path=/; max-age=86400`;
+        }
+        document.cookie = `user_role=${userData.role || 'user'}; path=/; max-age=86400`;
       }
       setError(null);
     } catch (err: any) {
@@ -67,6 +62,15 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && savedUser !== 'undefined') {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        // ignore
+      }
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       fetchProfile();
@@ -79,6 +83,8 @@ export const useAuth = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('email');
+    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     setUser(null);
     router.push('/auth/login');
   };

@@ -7,7 +7,7 @@ import Projects from "@/src/components/Projects";
 import Footer from "@/src/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Edo Bid | Unified Gateway to Nigeria's 36 States",
+  title: "NaijaPass | Unified Gateway to Nigeria's 36 States",
   description: "Partnering businesses with government projects to drive growth, development, and transparency. Access state intelligence, AI support, and verified directories.",
 };
 

@@ -38,13 +38,21 @@ export default function VerifyOtpPage() {
 
             if (token) {
                 localStorage.setItem("token", token);
+                document.cookie = `auth_token=${token}; path=/; max-age=86400`;
             }
             if (user) {
                 localStorage.setItem("user", JSON.stringify(user));
+                document.cookie = `user_role=${user.role || 'user'}; path=/; max-age=86400`;
             }
             
             setTimeout(() => {
-                router.push("/dashboard");
+                if (user?.role === 'admin') {
+                    router.push("/admin/dashboard");
+                } else if (user?.role === 'gov') {
+                    router.push("/gov/dashboard");
+                } else {
+                    router.push("/dashboard");
+                }
             }, 2000);
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Invalid OTP or Email.");

@@ -16,7 +16,7 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-zinc-50/50 text-[#101D2D]">
+      <div className="min-h-screen bg-[#F8F9FA] text-slate-700 font-sans">
         <Sidebar 
           isOpen={isMobileMenuOpen} 
           onClose={() => setIsMobileMenuOpen(false)} 

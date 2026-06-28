@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #FF6B2B;
+  --color-primary: #0088FF;
   --color-secondary: #101D2D;
-  --color-primary-hover: #E55F23;
+  --color-primary-hover: #0070D1;
   --color-secondary-hover: #192D44;
+  --color-mod-primary: #5D87FF;
+  --color-mod-secondary: #49BEFF;
+  --color-mod-bg: #F4F6F9;
+  --color-mod-card: #FFFFFF;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
@@ -32,7 +36,55 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #FF6B2B 0%, #E55F23 100%);
+  background: linear-gradient(135deg, #0088FF 0%, #0070D1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Grid Background */
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Infinite Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Line Animations for Breadcrumb */
+@keyframes slide-right {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slide-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.animate-slide-right {
+  animation: slide-right 4s ease-in-out infinite;
+}
+.animate-slide-down {
+  animation: slide-down 4s ease-in-out infinite;
+}
+
+/* Animated Box Line Grid */
+@keyframes scroll-grid {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 40px 40px; }
+}
+.animate-grid {
+  animation: scroll-grid 3s linear infinite;
+}
+
